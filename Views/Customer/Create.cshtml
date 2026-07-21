@@ -1,0 +1,251 @@
+@model YunChenShipping.Models.Customer
+@{
+    ViewData["Title"] = "客戶管理 / 新增客戶";
+}
+
+<div class="form-card">
+    <div class="form-card-header">
+        <i class="bi bi-person-plus"></i> 基本資料
+    </div>
+    <div class="form-card-body">
+        <form asp-action="Create" method="post" id="mainForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label class="form-label-custom">
+                        <span class="required">●</span> 客戶名稱
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="Name" class="form-control" placeholder="請輸入客戶名稱" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label-custom">
+                        <span class="required">●</span> 統一編號
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="TaxId" class="form-control" placeholder="選填，供發票開立比對" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label class="form-label-custom">
+                        <span class="required">●</span> 電話
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="Phone" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label-custom">
+                        傳真
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="Fax" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label class="form-label-custom">
+                        <span class="required">●</span> 付款方式
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <select asp-for="PaymentMethod" class="form-select"
+                            asp-items="Html.GetEnumSelectList<YunChenShipping.Models.PaymentMethod>()">
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label-custom">
+                        備註
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="Remarks" class="form-control" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 聯絡人 -->
+<div class="form-card">
+    <div class="form-card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-person-lines-fill"></i> 聯絡人（可多筆）</span>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addContact()">
+            <i class="bi bi-plus"></i> 新增聯絡人
+        </button>
+    </div>
+    <div class="form-card-body">
+        <div id="contactContainer">
+            <div class="row mb-2 contact-row align-items-center">
+                <div class="col-md-2">
+                    <label class="form-label-custom"><span class="required">●</span> 聯絡人姓名</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="contactNames" class="form-control" placeholder="姓名" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label-custom">電話</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="contactPhones" class="form-control" placeholder="電話" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label-custom">職稱</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="contactTitles" class="form-control" placeholder="職稱" />
+                </div>
+                <div class="col-md-1">
+                    <div class="form-check">
+                        <input type="checkbox" name="contactIsPrimary" class="form-check-input" value="true" checked />
+                        <label class="form-check-label">主要</label>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContact(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 交貨地址 -->
+<div class="form-card">
+    <div class="form-card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-geo-alt"></i> 交貨地址（可多筆）</span>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAddress()">
+            <i class="bi bi-plus"></i> 新增地址
+        </button>
+    </div>
+    <div class="form-card-body">
+        <div id="addressContainer">
+            <div class="row mb-2 address-row align-items-center">
+                <div class="col-md-2">
+                    <label class="form-label-custom"><span class="required">●</span> 交貨地址</label>
+                </div>
+                <div class="col-md-7">
+                    <input type="text" name="addresses" class="form-control" placeholder="請輸入交貨地址" />
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input type="checkbox" name="addressIsDefault" class="form-check-input" value="true" checked />
+                        <label class="form-check-label">預設地址</label>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAddress(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 按鈕 -->
+<div class="d-flex justify-content-center gap-3 mt-4">
+    <a asp-action="Index" class="btn btn-secondary px-4">
+        <i class="bi bi-arrow-left"></i> 回上一頁
+    </a>
+    <button type="button" class="btn btn-primary px-4" onclick="submitForm()">
+        <i class="bi bi-check-lg"></i> 確定新增
+    </button>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        function submitForm() {
+            document.getElementById('mainForm').submit();
+        }
+
+        function addContact() {
+            var container = document.getElementById('contactContainer');
+            var div = document.createElement('div');
+            div.className = 'row mb-2 contact-row align-items-center';
+            div.innerHTML = `
+                <div class="col-md-2">
+                    <label class="form-label-custom"><span class="required">●</span> 聯絡人姓名</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="contactNames" class="form-control" placeholder="姓名" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label-custom">電話</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="contactPhones" class="form-control" placeholder="電話" />
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label-custom">職稱</label>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="contactTitles" class="form-control" placeholder="職稱" />
+                </div>
+                <div class="col-md-1">
+                    <div class="form-check">
+                        <input type="checkbox" name="contactIsPrimary" class="form-check-input" value="true" />
+                        <label class="form-check-label">主要</label>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContact(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeContact(btn) {
+            var container = document.getElementById('contactContainer');
+            if (container.children.length > 1) {
+                btn.closest('.contact-row').remove();
+            }
+        }
+
+        function addAddress() {
+            var container = document.getElementById('addressContainer');
+            var div = document.createElement('div');
+            div.className = 'row mb-2 address-row align-items-center';
+            div.innerHTML = `
+                <div class="col-md-2">
+                    <label class="form-label-custom"><span class="required">●</span> 交貨地址</label>
+                </div>
+                <div class="col-md-7">
+                    <input type="text" name="addresses" class="form-control" placeholder="請輸入交貨地址" />
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input type="checkbox" name="addressIsDefault" class="form-check-input" value="true" />
+                        <label class="form-check-label">預設地址</label>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeAddress(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeAddress(btn) {
+            var container = document.getElementById('addressContainer');
+            if (container.children.length > 1) {
+                btn.closest('.address-row').remove();
+            }
+        }
+    </script>
+}

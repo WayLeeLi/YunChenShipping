@@ -1,0 +1,82 @@
+@model YunChenShipping.Controllers.RegisterViewModel
+@{
+    ViewData["Title"] = "註冊";
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>註冊 - 允晨出貨單管理平台</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; }
+    </style>
+</head>
+<body>
+    <div style="display: flex; width: 100vw; height: 100vh;">
+        <!-- 左側 -->
+        <div style="width: 50%; background: linear-gradient(180deg, #5da4d6 0%, #7cb5d8 50%, #b8c9a8 100%); display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <svg viewBox="0 0 100 100" width="120" height="120">
+                <ellipse cx="50" cy="55" rx="35" ry="25" fill="rgba(255,255,255,0.85)" />
+                <ellipse cx="35" cy="45" rx="20" ry="18" fill="rgba(255,255,255,0.85)" />
+                <ellipse cx="60" cy="42" rx="18" ry="16" fill="rgba(255,255,255,0.85)" />
+            </svg>
+            <h1 style="color: white; font-weight: 700; font-size: 2.2rem; margin-top: 30px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">允晨出貨單管理平台</h1>
+            <p style="color: white; font-size: 1.2rem; margin-top: 10px; opacity: 0.8;">加入我們，開始使用</p>
+        </div>
+
+        <!-- 右側 -->
+        <div style="width: 50%; background: linear-gradient(180deg, #c9b88a 0%, #b8c9a8 50%, #7cb5d8 100%); display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="width: 480px;">
+                <div style="background: rgba(255,255,255,0.3); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.4); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); padding: 40px;">
+                    <h3 style="color: white; font-weight: 600; margin-bottom: 30px;">建立新帳號</h3>
+
+                    <form asp-action="Register" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div style="display: flex; align-items: center; background: rgba(255,255,255,0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 15px;">
+                            <i class="bi bi-person-fill text-white me-3" style="font-size: 1.2rem;"></i>
+                            <input asp-for="Email" class="form-control border-0 bg-transparent text-white" placeholder="請輸入您的帳號" style="font-size: 1rem; padding: 0;" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+
+                        <div style="display: flex; align-items: center; background: rgba(255,255,255,0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 15px;">
+                            <i class="bi bi-key-fill text-white me-3" style="font-size: 1.2rem;"></i>
+                            <input asp-for="Password" class="form-control border-0 bg-transparent text-white" placeholder="請輸入您的密碼" style="font-size: 1rem; padding: 0;" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+
+                        <div style="display: flex; align-items: center; background: rgba(255,255,255,0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 15px;">
+                            <i class="bi bi-key-fill text-white me-3" style="font-size: 1.2rem;"></i>
+                            <input asp-for="ConfirmPassword" class="form-control border-0 bg-transparent text-white" placeholder="請再次輸入密碼" style="font-size: 1rem; padding: 0;" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+
+                        <hr style="border-color: rgba(255,255,255,0.3); margin: 20px 0;" />
+
+                        <button type="submit" class="btn w-100 text-white fw-bold" style="padding: 14px; background: linear-gradient(135deg, #f5a623, #f7c948); border: none; border-radius: 8px; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(245,166,35,0.4);">
+                            註 冊
+                        </button>
+                    </form>
+
+                    <hr style="border-color: rgba(255,255,255,0.3); margin: 20px 0;" />
+
+                    <p style="text-align: center; margin: 0;">
+                        <a asp-action="Login" style="color: white; text-decoration: none; opacity: 0.8;">已有帳號？點此登入</a>
+                    </p>
+                </div>
+
+                <p style="color: white; text-align: center; margin-top: 30px; opacity: 0.7;">Copyright © 2026 允晨科技有限公司</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+</body>
+</html>

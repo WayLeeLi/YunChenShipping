@@ -1,0 +1,88 @@
+@model YunChenShipping.Controllers.RolePermissionViewModel
+@{
+    ViewData["Title"] = "角色管理 / 設定權限 - " + Model.RoleName;
+}
+
+<form asp-action="SaveRolePermissions" method="post" id="permissionForm">
+    <input type="hidden" name="roleName" value="@Model.RoleName" />
+
+    <div class="form-card">
+        <div class="form-card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-shield"></i> 角色權限設定 - @Model.RoleName</span>
+            <a asp-action="Roles" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> 返回角色管理
+            </a>
+        </div>
+        <div class="form-card-body">
+            <p class="text-muted mb-3">勾選此角色可以看見的選單，未勾選的選單將不會顯示在側邊欄。</p>
+
+            @{
+                var groups = Model.Permissions.GroupBy(p => p.Group).ToList();
+            }
+
+            @foreach (var group in groups)
+            {
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 fw-bold">@group.Key</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (var perm in group)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input perm-check"
+                                               data-menukey="@perm.MenuKey"
+                                               @(perm.IsVisible ? "checked" : "") />
+                                        <label class="form-check-label fw-bold">
+                                            @perm.MenuName
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- 隱藏欄位 -->
+            <div id="hiddenFields"></div>
+
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-primary px-5" onclick="submitPermissions()">
+                    <i class="bi bi-check-lg"></i> 儲存權限
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function submitPermissions() {
+            var container = document.getElementById('hiddenFields');
+            container.innerHTML = '';
+
+            // 依序為每個選單生成 menuKeys 和 isVisible
+            document.querySelectorAll('.perm-check').forEach(function(check) {
+                var menuKey = check.getAttribute('data-menukey');
+
+                var inputKey = document.createElement('input');
+                inputKey.type = 'hidden';
+                inputKey.name = 'menuKeys';
+                inputKey.value = menuKey;
+                container.appendChild(inputKey);
+
+                var inputVisible = document.createElement('input');
+                inputVisible.type = 'hidden';
+                inputVisible.name = 'isVisible';
+                inputVisible.value = check.checked ? 'true' : 'false';
+                container.appendChild(inputVisible);
+            });
+
+            document.getElementById('permissionForm').submit();
+        }
+    </script>
+}

@@ -1,0 +1,192 @@
+@model YunChenShipping.Models.Customer
+@{
+    ViewData["Title"] = "客戶管理 / 客戶詳情";
+}
+
+<!-- 基本資料 -->
+<div class="form-card">
+    <div class="form-card-header">
+        <i class="bi bi-person-badge"></i> 基本資料
+    </div>
+    <div class="form-card-body">
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label class="form-label-custom">客戶編號</label>
+            </div>
+            <div class="col-md-4">
+                <span>@Model.Id</span>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">客戶名稱</label>
+            </div>
+            <div class="col-md-4">
+                <span>@Model.Name</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label class="form-label-custom">統一編號</label>
+            </div>
+            <div class="col-md-4">
+                <span>@(Model.TaxId ?? "-")</span>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">付款方式</label>
+            </div>
+            <div class="col-md-4">
+                <span>@Model.PaymentMethod</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label class="form-label-custom">電話</label>
+            </div>
+            <div class="col-md-4">
+                <span>@(Model.Phone ?? "-")</span>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">傳真</label>
+            </div>
+            <div class="col-md-4">
+                <span>@(Model.Fax ?? "-")</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label class="form-label-custom">狀態</label>
+            </div>
+            <div class="col-md-4">
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">啟用</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">停用</span>
+                }
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">備註</label>
+            </div>
+            <div class="col-md-4">
+                <span>@(Model.Remarks ?? "-")</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label class="form-label-custom">建立時間</label>
+            </div>
+            <div class="col-md-4">
+                <span>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label-custom">建立人員</label>
+            </div>
+            <div class="col-md-4">
+                <span>@(Model.CreatedBy ?? "-")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 聯絡人 -->
+<div class="form-card">
+    <div class="form-card-header">
+        <i class="bi bi-person-lines-fill"></i> 聯絡人
+    </div>
+    <div class="form-card-body">
+        @if (Model.Contacts != null && Model.Contacts.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>電話</th>
+                            <th>職稱</th>
+                            <th>主要聯絡人</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var contact in Model.Contacts.OrderByDescending(c => c.IsPrimary))
+                        {
+                            <tr>
+                                <td>@contact.Name</td>
+                                <td>@(contact.Phone ?? "-")</td>
+                                <td>@(contact.Title ?? "-")</td>
+                                <td>
+                                    @if (contact.IsPrimary)
+                                    {
+                                        <span class="badge bg-primary">主要</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted py-3">
+                <p class="mb-0">無聯絡人資料</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- 交貨地址 -->
+<div class="form-card">
+    <div class="form-card-header">
+        <i class="bi bi-geo-alt"></i> 交貨地址
+    </div>
+    <div class="form-card-body">
+        @if (Model.Addresses != null && Model.Addresses.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>地址</th>
+                            <th>預設</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var address in Model.Addresses.OrderByDescending(a => a.IsDefault))
+                        {
+                            <tr>
+                                <td>@address.Address</td>
+                                <td>
+                                    @if (address.IsDefault)
+                                    {
+                                        <span class="badge bg-primary">預設地址</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted py-3">
+                <p class="mb-0">無交貨地址資料</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- 按鈕 -->
+<div class="d-flex justify-content-center gap-3 mt-4">
+    <a asp-action="Index" class="btn btn-secondary px-4">
+        <i class="bi bi-arrow-left"></i> 回上一頁
+    </a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary px-4">
+        <i class="bi bi-pencil"></i> 編輯
+    </a>
+</div>

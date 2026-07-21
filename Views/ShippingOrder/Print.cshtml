@@ -1,0 +1,287 @@
+@model YunChenShipping.Models.ShippingOrder
+@{
+    ViewData["Title"] = "列印出貨單";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <title>列印出貨單 - @Model.OrderNo</title>
+    <style>
+        * {
+            font-family: "標楷體", "DFKai-SB", "BiauKai", serif;
+            font-size: 12pt;
+        }
+        body {
+            margin: 20px;
+        }
+        .print-container {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 10mm;
+        }
+        .company-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .company-header h1 {
+            font-size: 18pt;
+            margin: 5px 0;
+        }
+        .company-header p {
+            font-size: 10pt;
+            margin: 3px 0;
+        }
+        .order-title {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin: 15px 0;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        .order-info {
+            margin-bottom: 15px;
+        }
+        .order-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .order-info td {
+            padding: 4px 8px;
+            vertical-align: top;
+        }
+        .order-info .label {
+            width: 100px;
+            font-weight: bold;
+        }
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .detail-table th,
+        .detail-table td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        .detail-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .detail-table td.text-right {
+            text-align: right;
+        }
+        .summary-section {
+            margin-top: 15px;
+        }
+        .summary-table {
+            width: 50%;
+            margin-left: auto;
+            border-collapse: collapse;
+        }
+        .summary-table td {
+            padding: 4px 8px;
+            border: 1px solid #000;
+        }
+        .summary-table .total-row {
+            font-weight: bold;
+            font-size: 14pt;
+        }
+        .signature-section {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-box {
+            width: 30%;
+            text-align: center;
+        }
+        .signature-box .signature-line {
+            border-bottom: 1px solid #000;
+            height: 40px;
+            margin: 10px 0;
+        }
+        .print-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .print-buttons button {
+            margin: 0 10px;
+            padding: 10px 30px;
+            font-size: 14pt;
+        }
+        @@media print {
+            .print-buttons {
+                display: none;
+            }
+            body {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-buttons">
+        <button onclick="window.print()">列印</button>
+        <button onclick="window.close()">關閉</button>
+    </div>
+
+    <div class="print-container">
+        <!-- 公司抬頭 -->
+        <div class="company-header">
+            <h1>@ViewBag.CompanyName</h1>
+            @if (!string.IsNullOrEmpty(ViewBag.CompanyAddress as string))
+            {
+                <p>地址：@ViewBag.CompanyAddress</p>
+            }
+            @if (!string.IsNullOrEmpty(ViewBag.CompanyPhone as string) || !string.IsNullOrEmpty(ViewBag.CompanyFax as string))
+            {
+                <p>
+                    @if (!string.IsNullOrEmpty(ViewBag.CompanyPhone as string))
+                    {
+                        <span>電話：@ViewBag.CompanyPhone</span>
+                    }
+                    @if (!string.IsNullOrEmpty(ViewBag.CompanyFax as string))
+                    {
+                        <span>&nbsp;&nbsp; 傳真：@ViewBag.CompanyFax</span>
+                    }
+                </p>
+            }
+        </div>
+
+        <!-- 出貨單標題 -->
+        <div class="order-title">出 貨 單</div>
+
+        <!-- 基本資訊 -->
+        <div class="order-info">
+            <table>
+                <tr>
+                    <td class="label">出貨單號：</td>
+                    <td>@Model.OrderNo</td>
+                    <td class="label">出貨日期：</td>
+                    <td>@Model.OrderDate.ToString("yyyy年MM月dd日")</td>
+                </tr>
+                <tr>
+                    <td class="label">客戶名稱：</td>
+                    <td colspan="3">@Model.Customer?.Name</td>
+                </tr>
+                <tr>
+                    <td class="label">交貨地址：</td>
+                    <td colspan="3">@Model.DeliveryAddress</td>
+                </tr>
+                <tr>
+                    <td class="label">訂單號碼：</td>
+                    <td>@(Model.ReferenceNo ?? "-")</td>
+                    <td class="label">案號：</td>
+                    <td>@(Model.ProjectNo ?? "-")</td>
+                </tr>
+                <tr>
+                    <td class="label">付款方式：</td>
+                    <td>@Model.PaymentMethod</td>
+                    <td class="label">運送方式：</td>
+                    <td>@(Model.DeliveryMethod ?? "-")</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 明細表格 -->
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">項次</th>
+                    <th>產品名稱及規格</th>
+                    <th style="width: 80px;">PART NO</th>
+                    <th style="width: 50px;">數量</th>
+                    <th style="width: 40px;">單位</th>
+                    <th style="width: 80px;">單價</th>
+                    <th style="width: 100px;">金額</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detail in Model.Details.OrderBy(d => d.LineNo))
+                {
+                    <tr>
+                        <td>@detail.LineNo</td>
+                        <td style="text-align: left;">@(detail.ProductName ?? detail.Product?.Name)</td>
+                        <td>@(detail.PartNo ?? detail.Product?.PartNo)</td>
+                        <td class="text-right">@detail.Quantity</td>
+                        <td>@(detail.Unit ?? detail.Product?.Unit)</td>
+                        <td class="text-right">@detail.UnitPrice.ToString("N2")</td>
+                        <td class="text-right">@detail.SubTotal.ToString("N2")</td>
+                    </tr>
+                }
+                <!-- 空白列 -->
+                @for (int i = Model.Details.Count; i < 8; i++)
+                {
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- 金額摘要 -->
+        <div class="summary-section">
+            <table class="summary-table">
+                <tr>
+                    <td class="label">銷售額</td>
+                    <td class="text-right">@Model.SubTotal.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td class="label">營業稅</td>
+                    <td class="text-right">@Model.TaxAmount.ToString("N2")</td>
+                </tr>
+                @if (Model.OtherExpenses > 0)
+                {
+                    <tr>
+                        <td class="label">其他費用</td>
+                        <td class="text-right">@Model.OtherExpenses.ToString("N2")</td>
+                    </tr>
+                }
+                <tr class="total-row">
+                    <td class="label">總計</td>
+                    <td class="text-right">@Model.Total.ToString("N2")</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 備註 -->
+        @if (!string.IsNullOrEmpty(Model.Remarks))
+        {
+            <div style="margin-top: 15px;">
+                <strong>備註：</strong> @Model.Remarks
+            </div>
+        }
+
+        <!-- 簽名欄 -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <div>主管簽名</div>
+                <div class="signature-line"></div>
+                <div>@(Model.ManagerName ?? "_______________")</div>
+            </div>
+            <div class="signature-box">
+                <div>會計簽名</div>
+                <div class="signature-line"></div>
+                <div>@(Model.AccountingName ?? "_______________")</div>
+            </div>
+            <div class="signature-box">
+                <div>承辦簽名</div>
+                <div class="signature-line"></div>
+                <div>@(Model.Handler ?? "_______________")</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
