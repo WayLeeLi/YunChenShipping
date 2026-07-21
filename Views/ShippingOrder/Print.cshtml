@@ -31,13 +31,13 @@
             font-size: 14px;
         }
         .paper {
-            width: 241mm;
-            height: 140mm;
+            width: 215mm;
+            height: 138mm;
             margin: 0 auto;
             background: white;
             position: relative;
             border: 1px solid #ccc;
-            padding: 5mm 10mm;
+            padding: 4mm 8mm;
             overflow: hidden;
         }
         /* 左右打孔 */
@@ -207,7 +207,8 @@
         @@media print {
             .print-buttons { display: none; }
             body { background: white; padding: 0; }
-            .paper { border: none; box-shadow: none; }
+            .paper { border: none; box-shadow: none; width: 215mm; height: 138mm; }
+            @@page { size: 215mm 138mm; margin: 0; }
         }
     </style>
 </head>
