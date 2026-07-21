@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("YunChenShipping")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+29c2e972511c8f330b622cc93b825a3468dd7f13")]
 [assembly: System.Reflection.AssemblyProductAttribute("YunChenShipping")]
 [assembly: System.Reflection.AssemblyTitleAttribute("YunChenShipping")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
