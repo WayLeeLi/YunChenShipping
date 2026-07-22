@@ -3,110 +3,54 @@
     ViewData["Title"] = "產品管理 / 新增產品";
 }
 
-<div class="form-card">
-    <div class="form-card-header">
-        <i class="bi bi-box"></i> 基本資料
-    </div>
-    <div class="form-card-body">
-        <form asp-action="Create" method="post" id="mainForm">
+<form asp-action="Create" method="post" id="mainForm">
+    <div class="form-card">
+        <div class="form-card-header">
+            <i class="bi bi-box"></i> 新增產品
+        </div>
+        <div class="form-card-body">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">
-                        <span class="required">●</span> PART NO
-                    </label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="PartNo" class="form-control" placeholder="廠內料號" />
-                    <span asp-validation-for="PartNo" class="text-danger"></span>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label-custom">
-                        <span class="required">●</span> 單位
-                    </label>
-                </div>
-                <div class="col-md-4">
-                    <select asp-for="Unit" class="form-select">
-                        <option value="">請選擇</option>
-                        <option value="個">個</option>
-                        <option value="箱">箱</option>
-                        <option value="PCS">PCS</option>
-                        <option value="KG">KG</option>
-                        <option value="組">組</option>
-                        <option value="套">套</option>
-                        <option value="台">台</option>
-                        <option value="件">件</option>
-                        <option value="組">組</option>
-                    </select>
-                    <span asp-validation-for="Unit" class="text-danger"></span>
-                </div>
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom"><span class="required">●</span> PART NO</label>
+                <div class="col"><input asp-for="PartNo" class="form-control" /><span asp-validation-for="PartNo" class="text-danger small"></span></div>
+                <label class="form-label-custom"><span class="required">●</span> 單位</label>
+                <div class="col"><select asp-for="Unit" class="form-select" id="unitSelect"><option value="">請選擇</option></select></div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">
-                        <span class="required">●</span> 產品名稱及規格
-                    </label>
-                </div>
-                <div class="col-md-10">
-                    <input asp-for="Name" class="form-control" placeholder="請輸入產品名稱及規格" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom"><span class="required">●</span> 產品名稱</label>
+                <div class="col"><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger small"></span></div>
+                <label class="form-label-custom"><span class="required">●</span> 標準單價</label>
+                <div class="col"><input asp-for="StandardPrice" class="form-control" type="number" step="0.01" /><span asp-validation-for="StandardPrice" class="text-danger small"></span></div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">
-                        <span class="required">●</span> 標準單價
-                    </label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="StandardPrice" class="form-control" type="number" step="0.01" />
-                    <span asp-validation-for="StandardPrice" class="text-danger"></span>
-                    <small class="form-text">供開單時預帶，仍可手動修改</small>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label-custom">
-                        <span class="required">●</span> 課稅別
-                    </label>
-                </div>
-                <div class="col-md-4">
-                    <select asp-for="TaxType" class="form-select"
-                            asp-items="Html.GetEnumSelectList<YunChenShipping.Models.TaxType>()">
-                    </select>
-                </div>
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom"><span class="required">●</span> 課稅別</label>
+                <div class="col"><select asp-for="TaxType" class="form-select" asp-items="Html.GetEnumSelectList<YunChenShipping.Models.TaxType>()"></select></div>
+                <label class="form-label-custom">備註</label>
+                <div class="col"><input asp-for="Remarks" class="form-control" /></div>
             </div>
-
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">
-                        備註
-                    </label>
-                </div>
-                <div class="col-md-10">
-                    <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<div class="d-flex justify-content-center gap-3 mt-4">
-    <a asp-action="Index" class="btn btn-secondary px-4">
-        <i class="bi bi-arrow-left"></i> 回上一頁
-    </a>
-    <button type="button" class="btn btn-primary px-4" onclick="submitForm()">
-        <i class="bi bi-check-lg"></i> 確定新增
-    </button>
-</div>
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a asp-action="Index" class="btn btn-secondary px-4"><i class="bi bi-arrow-left"></i> 回上一頁</a>
+        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-lg"></i> 確定新增</button>
+    </div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
     <script>
-        function submitForm() {
-            document.getElementById('mainForm').submit();
-        }
+        $(document).ready(function() {
+            $.get('/UnitSetting/GetUnits', function(data) {
+                var select = $('#unitSelect');
+                select.find('option:gt(0)').remove();
+                data.forEach(function(unit) {
+                    select.append('<option value="' + unit + '">' + unit + '</option>');
+                });
+            });
+        });
     </script>
 }

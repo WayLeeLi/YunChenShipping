@@ -22,11 +22,17 @@ namespace YunChenShipping.Controllers
         {
             var settings = await _context.SystemSettings.ToListAsync();
 
-            // 若無設定則初始化預設值
             if (!settings.Any())
             {
                 await InitializeDefaultSettings();
                 settings = await _context.SystemSettings.ToListAsync();
+            }
+
+            // 取得單位列表
+            var units = settings.Where(s => s.Category == "Unit").Select(s => s.SettingValue).ToList();
+            if (!units.Any())
+            {
+                units = new List<string> { "個", "箱", "PCS", "KG", "組", "套", "台", "件" };
             }
 
             var model = new SystemSettingViewModel
@@ -38,7 +44,8 @@ namespace YunChenShipping.Controllers
                 OrderNoPrefix = GetSetting(settings, "OrderNoPrefix", "SO"),
                 TaxRate = decimal.Parse(GetSetting(settings, "TaxRate", "5")),
                 PrintMarginTop = int.Parse(GetSetting(settings, "PrintMarginTop", "10")),
-                PrintMarginLeft = int.Parse(GetSetting(settings, "PrintMarginLeft", "10"))
+                PrintMarginLeft = int.Parse(GetSetting(settings, "PrintMarginLeft", "10")),
+                Units = units
             };
 
             return View(model);
@@ -64,6 +71,54 @@ namespace YunChenShipping.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: SystemSetting/SaveUnits
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveUnits(string[] units)
+        {
+            // 刪除舊的單位設定
+            var oldUnits = await _context.SystemSettings
+                .Where(s => s.Category == "Unit")
+                .ToListAsync();
+            _context.SystemSettings.RemoveRange(oldUnits);
+
+            // 新增新的單位設定
+            if (units != null)
+            {
+                foreach (var unit in units.Where(u => !string.IsNullOrWhiteSpace(u)))
+                {
+                    _context.SystemSettings.Add(new SystemSetting
+                    {
+                        SettingKey = $"Unit_{unit}",
+                        SettingValue = unit.Trim(),
+                        Description = $"單位：{unit.Trim()}",
+                        Category = "Unit"
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "單位設定儲存成功！";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // API: 取得單位列表
+        [HttpGet]
+        public async Task<IActionResult> GetUnits()
+        {
+            var units = await _context.SystemSettings
+                .Where(s => s.Category == "Unit")
+                .Select(s => s.SettingValue)
+                .ToListAsync();
+
+            if (!units.Any())
+            {
+                units = new List<string> { "個", "箱", "PCS", "KG", "組", "套", "台", "件" };
+            }
+
+            return Json(units);
         }
 
         // API: 取得系統設定
@@ -147,6 +202,19 @@ namespace YunChenShipping.Controllers
                 });
             }
 
+            // 預設單位
+            var defaultUnits = new[] { "個", "箱", "PCS", "KG", "組", "套", "台", "件" };
+            foreach (var unit in defaultUnits)
+            {
+                _context.SystemSettings.Add(new SystemSetting
+                {
+                    SettingKey = $"Unit_{unit}",
+                    SettingValue = unit,
+                    Description = $"單位：{unit}",
+                    Category = "Unit"
+                });
+            }
+
             await _context.SaveChangesAsync();
         }
     }
@@ -176,5 +244,8 @@ namespace YunChenShipping.Controllers
 
         [Display(Name = "列印左邊距(mm)")]
         public int PrintMarginLeft { get; set; } = 10;
+
+        [Display(Name = "單位列表")]
+        public List<string> Units { get; set; } = new List<string>();
     }
 }

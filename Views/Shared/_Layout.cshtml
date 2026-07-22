@@ -175,18 +175,23 @@
             padding: 20px;
         }
 
-        /* 表單標籤樣式 */
+        /* 表單標籤樣式 - 所有標籤統一寬度 */
         .form-label-custom {
-            display: flex;
-            align-items: center;
-            margin-bottom: 6px;
-            font-weight: 500;
-            color: var(--text-color);
+            display: inline-block;
+            margin-bottom: 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #444;
+            text-align: right;
+            padding-right: 8px;
+            width: 90px;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .form-label-custom .required {
             color: var(--primary-color);
-            margin-right: 4px;
+            margin-right: 2px;
             font-weight: bold;
         }
 
@@ -194,13 +199,24 @@
         .form-control, .form-select {
             border: 1px solid #ddd;
             border-radius: 4px;
-            padding: 8px 12px;
-            font-size: 0.95rem;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            height: 36px;
         }
 
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(245, 124, 0, 0.15);
+        }
+
+        /* 表單行間距 */
+        .row.mb-3 {
+            margin-bottom: 0.75rem !important;
+        }
+
+        textarea.form-control {
+            height: auto;
+            min-height: 60px;
         }
 
         /* 按鈕樣式 */
@@ -329,66 +345,54 @@
 
                 <div class="menu-section">業務管理</div>
                 <ul class="nav flex-column">
-                    @if (CanSee("Customer"))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")"
-                               asp-controller="Customer" asp-action="Index">
-                                <i class="bi bi-people"></i> 客戶管理
-                            </a>
-                        </li>
-                    }
-                    @if (CanSee("Product"))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")"
-                               asp-controller="Product" asp-action="Index">
-                                <i class="bi bi-box"></i> 產品管理
-                            </a>
-                        </li>
-                    }
-                    @if (CanSee("ShippingOrder"))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ShippingOrder" ? "active" : "")"
-                               asp-controller="ShippingOrder" asp-action="Index">
-                                <i class="bi bi-truck"></i> 出貨單管理
-                            </a>
-                        </li>
-                    }
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")"
+                           asp-controller="Customer" asp-action="Index">
+                            <i class="bi bi-people"></i> 客戶管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")"
+                           asp-controller="Product" asp-action="Index">
+                            <i class="bi bi-box"></i> 產品管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ShippingOrder" ? "active" : "")"
+                           asp-controller="ShippingOrder" asp-action="Index">
+                            <i class="bi bi-truck"></i> 出貨單管理
+                        </a>
+                    </li>
                 </ul>
 
-                @if (CanSee("SystemSetting") || CanSee("UserManagement") || CanSee("RoleManagement"))
+                @if (User.IsInRole("Admin"))
                 {
                     <div class="menu-section">系統管理</div>
                     <ul class="nav flex-column">
-                        @if (CanSee("SystemSetting"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SystemSetting" ? "active" : "")"
-                                   asp-controller="SystemSetting" asp-action="Index">
-                                    <i class="bi bi-gear"></i> 系統設定
-                                </a>
-                            </li>
-                        }
-                        @if (CanSee("UserManagement"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-                                   asp-controller="UserManagement" asp-action="Index">
-                                    <i class="bi bi-person-gear"></i> 用戶管理
-                                </a>
-                            </li>
-                        }
-                        @if (CanSee("RoleManagement"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() == "Roles" ? "active" : "")"
-                                   asp-controller="UserManagement" asp-action="Roles">
-                                    <i class="bi bi-shield"></i> 角色管理
-                                </a>
-                            </li>
-                        }
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SystemSetting" ? "active" : "")"
+                               asp-controller="SystemSetting" asp-action="Index">
+                                <i class="bi bi-gear"></i> 系統設定
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UnitSetting" ? "active" : "")"
+                               asp-controller="UnitSetting" asp-action="Index">
+                                <i class="bi bi-list-ul"></i> 單位設定
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="UserManagement" asp-action="Index">
+                                <i class="bi bi-person-gear"></i> 用戶管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() == "Roles" ? "active" : "")"
+                               asp-controller="UserManagement" asp-action="Roles">
+                                <i class="bi bi-shield"></i> 角色管理
+                            </a>
+                        </li>
                     </ul>
                 }
             </div>

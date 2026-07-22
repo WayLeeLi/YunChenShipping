@@ -5,60 +5,31 @@
 }
 
 <form asp-action="Edit" method="post" id="mainForm">
+    <input type="hidden" asp-for="Id" />
+
     <div class="form-card">
         <div class="form-card-header">
             <i class="bi bi-pencil"></i> 編輯用戶
         </div>
         <div class="form-card-body">
-            <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom"><span class="required">●</span> 帳號(電子郵件)</label>
-                </div>
-                <div class="col-md-6">
-                    <input asp-for="Email" class="form-control" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom"><span class="required">●</span> 帳號</label>
+                <div class="col"><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="text-danger small"></span></div>
+                <label class="form-label-custom">角色</label>
+                <div class="col"><select asp-for="CurrentRole" class="form-select"><option value="">請選擇</option>@if (roles != null) { @foreach (var role in roles) { <option value="@role">@role</option> } }</select></div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">角色</label>
-                </div>
-                <div class="col-md-6">
-                    <select asp-for="CurrentRole" class="form-select">
-                        <option value="">請選擇角色</option>
-                        @if (roles != null)
-                        {
-                            @foreach (var role in roles)
-                            {
-                                <option value="@role">@role</option>
-                            }
-                        }
-                    </select>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">新密碼</label>
-                </div>
-                <div class="col-md-6">
-                    <input asp-for="NewPassword" class="form-control" placeholder="留空則不修改" />
-                    <small class="form-text">留空則不修改密碼</small>
-                </div>
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom">新密碼</label>
+                <div class="col"><input asp-for="NewPassword" class="form-control" placeholder="留空則不修改" /></div>
             </div>
         </div>
     </div>
 
     <div class="d-flex justify-content-center gap-3 mt-4">
-        <a asp-action="Index" class="btn btn-secondary px-4">
-            <i class="bi bi-arrow-left"></i> 回上一頁
-        </a>
-        <button type="submit" class="btn btn-primary px-4">
-            <i class="bi bi-check-lg"></i> 確定修改
-        </button>
+        <a asp-action="Index" class="btn btn-secondary px-4"><i class="bi bi-arrow-left"></i> 回上一頁</a>
+        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-lg"></i> 確定修改</button>
     </div>
 </form>

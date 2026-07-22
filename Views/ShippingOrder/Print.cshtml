@@ -10,206 +10,39 @@
     <meta charset="utf-8" />
     <title>列印出貨單 - @Model.OrderNo</title>
     <style>
-        * {
-            font-family: "標楷體", "DFKai-SB", "BiauKai", serif;
-            font-size: 9pt;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #f0f0f0;
-            padding: 10px;
-        }
-        .print-buttons {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .print-buttons button {
-            margin: 0 10px;
-            padding: 8px 25px;
-            font-size: 14px;
-        }
-        .paper {
-            width: 215mm;
-            height: 138mm;
-            margin: 0 auto;
-            background: white;
-            position: relative;
-            border: 1px solid #ccc;
-            padding: 4mm 8mm;
-            overflow: hidden;
-        }
-        /* 左右打孔 */
-        .paper::before, .paper::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 8mm;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent 0mm,
-                transparent 8mm,
-                #e0e0e0 8mm,
-                #e0e0e0 10mm
-            );
-        }
-        .paper::before { left: 0; }
-        .paper::after { right: 0; }
+        * { font-family: "標楷體", "DFKai-SB", serif; font-size: 10pt; margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f0f0f0; padding: 10px; }
+        .print-buttons { text-align: center; margin-bottom: 10px; }
+        .print-buttons button { margin: 0 10px; padding: 8px 25px; font-size: 14px; }
+        .paper { width: 215mm; height: 138mm; margin: 0 auto; background: white; padding: 5mm 10mm; }
 
-        /* 標題區 */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 3mm;
-        }
-        .header-left {
-            width: 30%;
-        }
-        .header-center {
-            width: 40%;
-            text-align: center;
-        }
-        .header-center h2 {
-            font-size: 16pt;
-            letter-spacing: 8px;
-            margin-bottom: 1mm;
-        }
-        .header-center p {
-            font-size: 8pt;
-            line-height: 1.4;
-        }
-        .header-right {
-            width: 30%;
-        }
-        .info-row {
-            display: flex;
-            margin-bottom: 1mm;
-        }
-        .info-label {
-            width: 60px;
-            flex-shrink: 0;
-            font-size: 9pt;
-        }
-        .info-value {
-            flex: 1;
-            border-bottom: 1px solid #000;
-            min-height: 4mm;
-            font-size: 9pt;
-        }
+        .header { display: flex; justify-content: space-between; margin-bottom: 2mm; }
+        .header-left { width: 30%; } .header-center { width: 40%; text-align: center; } .header-right { width: 30%; }
+        .header-center h2 { font-size: 16pt; letter-spacing: 6px; margin-bottom: 1mm; }
+        .header-center p { font-size: 8pt; line-height: 1.4; }
+        .info-row { display: flex; margin-bottom: 1mm; font-size: 9pt; line-height: 1.6; white-space: nowrap; }
+        .info-label { flex-shrink: 0; white-space: nowrap; } .info-value { flex: 1; border-bottom: 1px solid #000; white-space: nowrap; overflow: hidden; }
 
-        /* 明細表格 */
-        .detail-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2mm 0;
-        }
-        .detail-table th, .detail-table td {
-            border: 1px solid #000;
-            padding: 1mm 2mm;
-            text-align: center;
-        }
-        .detail-table th {
-            background: #f5f5f5;
-            font-size: 9pt;
-        }
-        .detail-table .col-item { width: 40px; }
-        .detail-table .col-name { width: 180px; text-align: left; }
-        .detail-table .col-partno { width: 80px; }
-        .detail-table .col-qty { width: 50px; }
-        .detail-table .col-unit { width: 40px; }
-        .detail-table .col-price { width: 70px; }
-        .detail-table .col-total { width: 70px; }
-        .detail-table .col-sign { width: 120px; }
-        .detail-table td.text-right { text-align: right; }
-        .detail-table td.text-left { text-align: left; }
+        .main-table { width: 100%; border-collapse: collapse; }
+        .main-table th, .main-table td { border: 1px solid #000; padding: 1mm 2mm; text-align: center; font-size: 9pt; height: 8mm; }
+        .main-table th { background: #f5f5f5; }
 
-        /* 空白列 */
-        .empty-row td {
-            height: 6mm;
-        }
+        .footer-section { display: flex; margin-top: 2mm; gap: 2mm; }
+        .footer-left { flex: 1; border: 1px solid #000; padding: 2mm; font-size: 9pt; }
+        .footer-right { width: 180px; border: 1px solid #000; }
+        .footer-right table { width: 100%; border-collapse: collapse; }
+        .footer-right td { border: 1px solid #000; padding: 2mm 3mm; font-size: 9pt; }
+        .footer-right .label-cell { width: 55px; background: #f5f5f5; }
+        .tax-row { display: flex; margin-bottom: 1.5mm; gap: 3mm; font-size: 9pt; }
+        .tax-item { display: flex; align-items: center; gap: 2mm; }
+        .tax-box { width: 28px; border: 1px solid #000; text-align: center; padding: 1mm; }
 
-        /* 底部區 */
-        .footer-section {
-            display: flex;
-            margin-top: 2mm;
-            gap: 2mm;
-        }
-        .footer-left {
-            flex: 1;
-            border: 1px solid #000;
-            padding: 2mm;
-        }
-        .footer-right {
-            width: 200px;
-            border: 1px solid #000;
-        }
-        .footer-right table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .footer-right td {
-            border: 1px solid #000;
-            padding: 2mm 3mm;
-        }
-        .footer-right .label-cell {
-            width: 60px;
-            background: #f5f5f5;
-        }
-        .tax-row {
-            display: flex;
-            margin-bottom: 2mm;
-            gap: 5mm;
-        }
-        .tax-item {
-            display: flex;
-            align-items: center;
-        }
-        .tax-box {
-            width: 40px;
-            border: 1px solid #000;
-            text-align: center;
-            margin-right: 2mm;
-            padding: 1mm;
-        }
-        .remark-title {
-            font-size: 9pt;
-            margin-bottom: 1mm;
-        }
+        .signature-section { display: flex; justify-content: space-between; margin-top: 3mm; padding: 0 15mm; font-size: 9pt; }
+        .signature-item { text-align: center; }
+        .signature-line { width: 100px; border-bottom: 1px solid #000; margin: 0 auto 1mm; height: 5mm; }
+        .copies-info { text-align: center; margin-top: 2mm; font-size: 8pt; border-top: 1px dashed #999; padding-top: 1mm; }
 
-        /* 簽名區 */
-        .signature-section {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 3mm;
-            padding: 0 10mm;
-        }
-        .signature-item {
-            text-align: center;
-        }
-        .signature-line {
-            width: 100px;
-            border-bottom: 1px solid #000;
-            margin: 0 auto 1mm;
-            height: 6mm;
-        }
-
-        /* 三聯說明 */
-        .copies-info {
-            text-align: center;
-            margin-top: 2mm;
-            font-size: 8pt;
-            border-top: 1px dashed #999;
-            padding-top: 1mm;
-        }
-
-        @@media print {
-            .print-buttons { display: none; }
-            body { background: white; padding: 0; }
-            .paper { border: none; box-shadow: none; width: 215mm; height: 138mm; }
-            @@page { size: 215mm 138mm; margin: 0; }
-        }
+        @@media print { .print-buttons { display: none; } body { background: white; padding: 0; } .paper { border: none; } @@page { size: 215mm 138mm; margin: 0; } }
     </style>
 </head>
 <body>
@@ -219,170 +52,95 @@
     </div>
 
     <div class="paper">
-        <!-- 頂部：客戶資訊 | 公司抬頭 | 出貨單資訊 -->
+        <!-- 頂部三欄 -->
         <div class="header">
-            <!-- 左：客戶資訊 -->
             <div class="header-left">
-                <div class="info-row">
-                    <span class="info-label">客戶名稱:</span>
-                    <span class="info-value">@Model.Customer?.Name</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">電　話:</span>
-                    <span class="info-value">@(Model.Customer?.Phone ?? "")</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">聯絡人:</span>
-                    <span class="info-value">@(Model.Handler ?? "")</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">交貨地址:</span>
-                    <span class="info-value">@Model.DeliveryAddress</span>
-                </div>
+                <div class="info-row"><span class="info-label">客戶名稱:</span><span class="info-value">@Model.Customer?.Name</span></div>
+                <div class="info-row"><span class="info-label">電　話:</span><span class="info-value">@(Model.Customer?.Phone ?? "")</span></div>
+                <div class="info-row"><span class="info-label">聯絡人:</span><span class="info-value">@(Model.Customer?.ContactPerson ?? Model.Handler ?? "")</span></div>
+                <div class="info-row"><span class="info-label">交貨地址:</span><span class="info-value">@Model.DeliveryAddress</span></div>
             </div>
-
-            <!-- 中：公司抬頭 -->
             <div class="header-center">
                 <h2>允晨科技有限公司</h2>
-                <p>@(ViewBag.CompanyAddress as string ?? "300048新北市北區竹光路363號")</p>
+                <p>@(ViewBag.CompanyAddress as string ?? "300048新竹市北區竹光路363號")</p>
                 <p>TEL：@(ViewBag.CompanyPhone as string ?? "03-5427772")　FAX：@(ViewBag.CompanyFax as string ?? "03-5427758")</p>
-                <h2 style="letter-spacing: 12px; margin-top: 3mm;">出 貨 單</h2>
+                <h2 style="letter-spacing: 10px; margin-top: 2mm;">出 貨 單</h2>
             </div>
-
-            <!-- 右：出貨單資訊 -->
             <div class="header-right">
-                <div class="info-row">
-                    <span class="info-label">出貨單號:</span>
-                    <span class="info-value">@Model.OrderNo</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">發票號碼:</span>
-                    <span class="info-value">@(Model.InvoiceNo ?? "")</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">出貨日期:</span>
-                    <span class="info-value">@Model.OrderDate.ToString("yyyy/MM/dd")</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">訂單號碼:</span>
-                    <span class="info-value">@(Model.ReferenceNo ?? "")</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">案　號:</span>
-                    <span class="info-value">@(Model.ProjectNo ?? "")</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">付款方式:</span>
-                    <span class="info-value">@Model.PaymentMethod</span>
-                </div>
+                <div class="info-row"><span class="info-label">出貨單號:</span><span class="info-value">@Model.OrderNo</span></div>
+                <div class="info-row"><span class="info-label">發票號碼:</span><span class="info-value">@(Model.InvoiceNo ?? "")</span></div>
+                <div class="info-row"><span class="info-label">出貨日期:</span><span class="info-value">@Model.OrderDate.ToString("yyyy/MM/dd")</span></div>
+                <div class="info-row"><span class="info-label">訂單號碼:</span><span class="info-value">@(Model.ReferenceNo ?? "")</span></div>
+                <div class="info-row"><span class="info-label">案　號:</span><span class="info-value">@(Model.ProjectNo ?? "")</span></div>
+                <div class="info-row"><span class="info-label">付款方式:</span><span class="info-value">@Html.DisplayFor(model => model.PaymentMethod)</span></div>
             </div>
         </div>
 
-        <!-- 明細表格 -->
-        <table class="detail-table">
+        <!-- 明細表格 + 客戶簽名 -->
+        <table class="main-table">
             <thead>
                 <tr>
-                    <th class="col-item">項次</th>
-                    <th class="col-name">產品名稱及規格</th>
-                    <th class="col-partno">PART NO</th>
-                    <th class="col-qty">數量</th>
-                    <th class="col-unit">單位</th>
-                    <th class="col-price">單價</th>
-                    <th class="col-total">總價</th>
-                    <th class="col-sign">客 戶 簽 名</th>
+                    <th style="width:35px;">項次</th>
+                    <th>產品名稱及規格</th>
+                    <th style="width:70px;">PART NO</th>
+                    <th style="width:45px;">數量</th>
+                    <th style="width:35px;">單位</th>
+                    <th style="width:60px;">單價</th>
+                    <th style="width:65px;">總價</th>
+                    <th style="width:90px;" rowspan="7" style="vertical-align:middle;">客 戶 簽 名</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var detail in Model.Details.OrderBy(d => d.LineNo))
+                @{ var totalRows = 6; }
+                @foreach (var detail in Model.Details.OrderBy(d => d.LineNo).Take(totalRows))
                 {
                     <tr>
                         <td>@detail.LineNo</td>
-                        <td class="text-left">@(detail.ProductName ?? detail.Product?.Name ?? "")</td>
+                        <td style="text-align:left;">@(detail.ProductName ?? detail.Product?.Name ?? "")</td>
                         <td>@(detail.PartNo ?? detail.Product?.PartNo ?? "")</td>
                         <td>@detail.Quantity</td>
                         <td>@(detail.Unit ?? detail.Product?.Unit ?? "")</td>
-                        <td class="text-right">@detail.UnitPrice.ToString("N2")</td>
-                        <td class="text-right">@detail.SubTotal.ToString("N2")</td>
-                        <td></td>
+                        <td style="text-align:right;">@detail.UnitPrice.ToString("N2")</td>
+                        <td style="text-align:right;">@detail.SubTotal.ToString("N2")</td>
                     </tr>
                 }
-                @{
-                    var rowCount = Model.Details.Count;
-                    for (int i = rowCount; i < 6; i++)
-                    {
-                        <tr class="empty-row">
-                            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                        </tr>
-                    }
+                @for (int i = Model.Details.Count; i < totalRows; i++)
+                {
+                    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
                 }
             </tbody>
         </table>
 
-        <!-- 底部：稅別 | 備註 | 金額 -->
+        <!-- 底部 -->
         <div class="footer-section">
-            <!-- 左：稅別 + 備註 -->
             <div class="footer-left">
                 <div class="tax-row">
-                    <div class="tax-item">
-                        <span>應稅</span>
-                        <div class="tax-box">@(Model.TaxAmount > 0 ? "V" : "")</div>
-                    </div>
-                    <div class="tax-item">
-                        <span>零稅</span>
-                        <div class="tax-box">@(Model.TaxAmount == 0 && Model.SubTotal > 0 ? "V" : "")</div>
-                    </div>
-                    <div class="tax-item" style="margin-left: auto;">
-                        <span>其他</span>
-                        <span style="border-bottom: 1px solid #000; min-width: 60px; display: inline-block;">@(Model.OtherExpenses > 0 ? Model.OtherExpenses.ToString("N0") : "")</span>
-                    </div>
-                    <div class="tax-item" style="margin-left: 5mm;">
-                        <span>運送方式:</span>
-                        <span style="border-bottom: 1px solid #000; min-width: 60px; display: inline-block;">@(Model.DeliveryMethod ?? "")</span>
-                    </div>
+                    <div class="tax-item"><span>應稅</span><div class="tax-box">@(Model.TaxAmount > 0 ? "V" : "")</div></div>
+                    <div class="tax-item"><span>零稅</span><div class="tax-box">@(Model.TaxAmount == 0 && Model.SubTotal > 0 ? "V" : "")</div></div>
+                    <div class="tax-item" style="margin-left: auto;"><span>其他</span><span style="border-bottom:1px solid #000;min-width:50px;display:inline-block;">@(Model.OtherExpenses > 0 ? Model.OtherExpenses.ToString("N0") : "")</span></div>
+                    <div class="tax-item"><span>運送方式：</span><span style="border-bottom:1px solid #000;min-width:50px;display:inline-block;">@(Model.DeliveryMethod ?? "")</span></div>
                 </div>
-                <div class="remark-title">備　註：</div>
-                <div style="min-height: 8mm; border-bottom: 1px solid #000;">@(Model.Remarks ?? "")</div>
+                <div style="border-top:1px solid #000;padding-top:1mm;margin-top:1mm;">
+                    <div style="margin-bottom:1mm;">備　註：</div>
+                    <div style="min-height:8mm;">@(Model.Remarks ?? "")</div>
+                </div>
             </div>
-
-            <!-- 右：金額 -->
             <div class="footer-right">
                 <table>
-                    <tr>
-                        <td class="label-cell">銷售額</td>
-                        <td class="text-right">@Model.SubTotal.ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <td class="label-cell">營業稅</td>
-                        <td class="text-right">@Model.TaxAmount.ToString("N2")</td>
-                    </tr>
-                    <tr>
-                        <td class="label-cell" style="font-weight: bold;">總 計</td>
-                        <td class="text-right" style="font-weight: bold;">@Model.Total.ToString("N2")</td>
-                    </tr>
+                    <tr><td class="label-cell">銷售額</td><td style="text-align:right;">@Model.SubTotal.ToString("N2")</td></tr>
+                    <tr><td class="label-cell">營業稅</td><td style="text-align:right;">@Model.TaxAmount.ToString("N2")</td></tr>
+                    <tr><td class="label-cell" style="font-weight:bold;">總 計</td><td style="text-align:right;font-weight:bold;">@Model.Total.ToString("N2")</td></tr>
                 </table>
             </div>
         </div>
 
-        <!-- 簽名區 -->
+        <!-- 簽名 -->
         <div class="signature-section">
-            <div class="signature-item">
-                <div class="signature-line"></div>
-                <span>主管：</span>
-            </div>
-            <div class="signature-item">
-                <div class="signature-line"></div>
-                <span>會計：</span>
-            </div>
-            <div class="signature-item">
-                <div class="signature-line"></div>
-                <span>承辦：</span>
-            </div>
+            <div class="signature-item"><div class="signature-line"></div><span>主管：</span></div>
+            <div class="signature-item"><div class="signature-line"></div><span>會計：</span></div>
+            <div class="signature-item"><div class="signature-line"></div><span>承辦：</span></div>
         </div>
-
-        <!-- 三聯說明 -->
-        <div class="copies-info">
-            第一聯：存根聯(白)　　第二聯：會計聯(藍)　　第三聯：客戶聯(黃)
-        </div>
+        <div class="copies-info">第一聯：存根聯(白)　　第二聯：會計聯(藍)　　第三聯：客戶聯(黃)</div>
     </div>
 </body>
 </html>

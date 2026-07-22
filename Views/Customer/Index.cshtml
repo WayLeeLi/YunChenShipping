@@ -55,7 +55,7 @@
                             <td>@(item.TaxId ?? "-")</td>
                             <td>@(item.Phone ?? "-")</td>
                             <td>@(item.ContactPerson ?? "-")</td>
-                            <td>@item.PaymentMethod</td>
+                            <td>@Html.DisplayFor(modelItem => item.PaymentMethod)</td>
                             <td>
                                 @if (item.IsActive)
                                 {

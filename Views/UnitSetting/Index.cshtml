@@ -1,0 +1,69 @@
+@model List<string>
+@{
+    ViewData["Title"] = "單位設定";
+}
+
+<form asp-action="Save" method="post">
+    <div class="form-card">
+        <div class="form-card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-list-ul"></i> 單位設定</span>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addUnit()">
+                <i class="bi bi-plus"></i> 新增單位
+            </button>
+        </div>
+        <div class="form-card-body">
+            <p class="text-muted mb-3">設定產品管理中可選的單位，新增後會出現在產品管理的單位下拉選單中。</p>
+            <div id="unitContainer">
+                @if (Model != null && Model.Any())
+                {
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <div class="row mb-2 align-items-center unit-row">
+                            <div class="col-md-4">
+                                <input type="text" name="units" class="form-control" value="@Model[i]" />
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeUnit(this)">
+                                    <i class="bi bi-trash"></i> 刪除
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check-lg"></i> 儲存單位
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function addUnit() {
+            var container = document.getElementById('unitContainer');
+            var div = document.createElement('div');
+            div.className = 'row mb-2 align-items-center unit-row';
+            div.innerHTML = `
+                <div class="col-md-4">
+                    <input type="text" name="units" class="form-control" placeholder="請輸入單位名稱" />
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeUnit(this)">
+                        <i class="bi bi-trash"></i> 刪除
+                    </button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeUnit(btn) {
+            var container = document.getElementById('unitContainer');
+            if (container.children.length > 1) {
+                btn.closest('.unit-row').remove();
+            }
+        }
+    </script>
+}
