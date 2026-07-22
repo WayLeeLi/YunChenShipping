@@ -242,10 +242,10 @@
                 <tr>
                     <td>應稅</td>
                     <td>@(ViewBag.TaxCategoryName?.ToString().Contains("應稅") == true ? "☑" : "")</td>
-                    <td>零稅</td>
+                    <td>零税</td>
                     <td>@(ViewBag.TaxCategoryName?.ToString().Contains("零税") == true ? "☑" : "")</td>
                     <td>其他：</td>
-                    <td>@(ViewBag.TaxCategoryName?.ToString().Contains("應稅") != true && ViewBag.TaxCategoryName?.ToString().Contains("零稅") != true && !string.IsNullOrEmpty(ViewBag.TaxCategoryName?.ToString()) ? "☑" : "")</td>
+                    <td>@(ViewBag.TaxCategoryName?.ToString().Contains("應稅") != true && ViewBag.TaxCategoryName?.ToString().Contains("零税") != true && !string.IsNullOrEmpty(ViewBag.TaxCategoryName?.ToString()) ? "☑" : "")</td>
                     <td rowspan="2">運送方式：@(Model.DeliveryMethod ?? "")</td>
                     <td rowspan="2" style="width:95px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;">
