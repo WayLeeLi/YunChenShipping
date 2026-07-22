@@ -53,6 +53,13 @@ namespace YunChenShipping.Models
         [Display(Name = "其他費用")]
         public decimal OtherExpenses { get; set; }
 
+        [Display(Name = "營業稅類別")]
+        public int TaxCategoryId { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        [Display(Name = "稅率(%)")]
+        public decimal TaxRate { get; set; }
+
         [Column(TypeName = "decimal(18,2)")]
         [Display(Name = "銷售額")]
         public decimal SubTotal { get; set; }

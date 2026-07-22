@@ -8,6 +8,8 @@
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="CreatedAt" />
     <input type="hidden" asp-for="CreatedBy" />
+    <input type="hidden" name="TaxCategoryId" id="taxCategoryId" value="@Model.TaxCategoryId" />
+    <input type="hidden" name="TaxRate" id="taxRateValue" value="@Model.TaxRate" />
 
     <div class="form-card">
         <div class="form-card-header">
@@ -16,99 +18,41 @@
         <div class="form-card-body">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom"><span class="required">●</span> 出貨單號</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="OrderNo" class="form-control" readonly />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label-custom"><span class="required">●</span> 出貨日期</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="OrderDate" class="form-control" type="date" />
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom"><span class="required">●</span> 出貨單號</label>
+                <div class="col"><input asp-for="OrderNo" class="form-control" readonly /></div>
+                <label class="form-label-custom"><span class="required">●</span> 出貨日期</label>
+                <div class="col"><input asp-for="OrderDate" class="form-control" type="date" /></div>
+                <label class="form-label-custom"><span class="required">●</span> 客戶</label>
+                <div class="col"><select asp-for="CustomerId" class="form-select" id="customerSelect"><option value="">請選擇</option>@if (customers != null) { @foreach (var c in customers) { <option value="@c.Id" selected="@(c.Id == Model.CustomerId)">@c.Name</option> } }</select></div>
+            </div>
+
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom">付款方式</label>
+                <div class="col"><select asp-for="PaymentMethod" class="form-select" asp-items="Html.GetEnumSelectList<YunChenShipping.Models.PaymentMethod>()"></select></div>
+                <label class="form-label-custom">訂單號碼</label>
+                <div class="col"><input asp-for="ReferenceNo" class="form-control" placeholder="選填" /></div>
+                <label class="form-label-custom">案號</label>
+                <div class="col"><input asp-for="ProjectNo" class="form-control" placeholder="選填" /></div>
+            </div>
+
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom">發票號碼</label>
+                <div class="col"><input asp-for="InvoiceNo" class="form-control" placeholder="選填，可事後補登" /></div>
+                <label class="form-label-custom">承辦人</label>
+                <div class="col"><input asp-for="Handler" class="form-control" /></div>
+                <label class="form-label-custom">運送方式</label>
+                <div class="col">
+                    <input type="hidden" name="DeliveryMethod" id="deliveryMethodHidden" value="@Model.DeliveryMethod" />
+                    <select class="form-select" id="deliveryMethodSelect" onchange="document.getElementById('deliveryMethodHidden').value=this.value"><option value="">請選擇</option></select>
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom"><span class="required">●</span> 客戶</label>
-                </div>
-                <div class="col-md-4">
-                    <select asp-for="CustomerId" class="form-select" id="customerSelect">
-                        <option value="">請選擇客戶</option>
-                        @if (customers != null)
-                        {
-                            @foreach (var customer in customers)
-                            {
-                                <option value="@customer.Id" selected="@(customer.Id == Model.CustomerId)">@customer.Name</option>
-                            }
-                        }
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label-custom">付款方式</label>
-                </div>
-                <div class="col-md-4">
-                    <select asp-for="PaymentMethod" class="form-select"
-                            asp-items="Html.GetEnumSelectList<YunChenShipping.Models.PaymentMethod>()">
-                    </select>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">訂單號碼</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="ReferenceNo" class="form-control" placeholder="選填" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label-custom">案號</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="ProjectNo" class="form-control" placeholder="選填" />
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">發票號碼</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="InvoiceNo" class="form-control" placeholder="選填，可事後補登" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label-custom">承辦人</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="Handler" class="form-control" />
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom"><span class="required">●</span> 交貨地址</label>
-                </div>
-                <div class="col-md-10">
-                    <textarea asp-for="DeliveryAddress" class="form-control" rows="2"></textarea>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-2">
-                    <label class="form-label-custom">運送方式</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="DeliveryMethod" class="form-control" placeholder="例：自送、宅配、貨運" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label-custom">備註</label>
-                </div>
-                <div class="col-md-4">
-                    <input asp-for="Remarks" class="form-control" />
-                </div>
+            <div class="row mb-2 align-items-center">
+                <label class="form-label-custom"><span class="required">●</span> 交貨地址</label>
+                <div class="col"><textarea asp-for="DeliveryAddress" class="form-control" rows="2"></textarea></div>
+                <label class="form-label-custom">備註</label>
+                <div class="col"><input asp-for="Remarks" class="form-control" /></div>
             </div>
         </div>
     </div>
@@ -132,8 +76,8 @@
                             <th>PART NO</th>
                             <th style="width: 100px;">數量</th>
                             <th style="width: 100px;">單位</th>
-                            <th style="width: 110px;">單價</th>
-                            <th style="width: 110px;">小計</th>
+                            <th style="width: 140px;">單價</th>
+                            <th style="width: 140px;">小計</th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
@@ -145,7 +89,8 @@
                                 <tr>
                                     <td>@detail.LineNo</td>
                                     <td>
-                                        <select name="ProductIds" class="form-select form-select-sm product-select" onchange="updateProductInfo(this)">
+                                        <input type="hidden" name="ProductIds" value="@detail.ProductId" />
+                                        <select class="form-select form-select-sm product-select" onchange="updateProductInfo(this)">
                                             <option value="">請選擇產品</option>
                                         </select>
                                     </td>
@@ -224,18 +169,28 @@
                         <div class="form-card-body">
                             <div class="row mb-2">
                                 <div class="col-6"><strong>銷售額：</strong></div>
-                                <div class="col-6 text-end" id="subTotal">@Model.SubTotal.ToString("N2")</div>
+                                <div class="col-6 text-end" id="subTotal">@Model.SubTotal.ToString("N0")</div>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>營業稅（5%）：</strong></div>
-                                <div class="col-6 text-end" id="taxAmount">@Model.TaxAmount.ToString("N2")</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>其他費用：</strong></div>
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-6"><strong>請選擇營業稅類別：</strong></div>
                                 <div class="col-6">
-                                    <input type="number" asp-for="OtherExpenses" class="form-control form-control-sm text-end"
-                                           step="0.01" onchange="calculateTotal()" style="width: 120px; float: right;" />
+                                    <select id="taxCategorySelect" class="form-select form-select-sm" onchange="onTaxCategoryChange()">
+                                        <option value="">請選擇營業稅類別</option>
+                                    </select>
                                 </div>
+                            </div>
+                            <div class="row mb-2 align-items-center" id="customTaxRow" style="display: none;">
+                                <div class="col-6"><strong>稅率：</strong></div>
+                                <div class="col-6">
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" id="customTaxRate" class="form-control" step="0.01" min="0" max="100" value="@Model.TaxRate" onchange="onCustomTaxRateChange()" />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>營業稅：</strong></div>
+                                <div class="col-6 text-end" id="taxAmount">@Model.TaxAmount.ToString("N0")</div>
                             </div>
                             <hr />
                             <div class="row">
@@ -265,10 +220,82 @@
 
     <script>
         var products = [];
+        var taxCategories = [];
+        var selectedTaxCategoryId = 0;
+        var selectedTaxRate = 0;
 
         $(document).ready(function() {
             loadProducts();
+            loadTaxCategories();
+            loadDeliveryMethods();
         });
+
+        function loadDeliveryMethods() {
+            $.get('/DeliveryMethod/GetDeliveryMethods', function(data) {
+                var select = $('#deliveryMethodSelect');
+                select.find('option:gt(0)').remove();
+                data.forEach(function(method) {
+                    select.append(`<option value="${method.name}">${method.name}</option>`);
+                });
+                // 選中當前值
+                var currentValue = $('#deliveryMethodHidden').val();
+                if (currentValue) {
+                    select.val(currentValue);
+                }
+            });
+        }
+
+        function loadTaxCategories() {
+            $.get('/TaxCategory/GetTaxCategories', function(data) {
+                taxCategories = data;
+                var select = $('#taxCategorySelect');
+                select.find('option:gt(0)').remove();
+                data.forEach(function(cat) {
+                    select.append(`<option value="${cat.id}" data-rate="${cat.taxRate}">${cat.name} (${cat.taxRate}%)</option>`);
+                });
+
+                // 選中當前稅目
+                var currentTaxCategoryId = @Model.TaxCategoryId;
+                if (currentTaxCategoryId > 0) {
+                    select.val(currentTaxCategoryId);
+                    selectedTaxCategoryId = currentTaxCategoryId;
+                    selectedTaxRate = @Model.TaxRate;
+                    $('#customTaxRate').val(selectedTaxRate);
+                    $('#customTaxRow').show();
+                }
+            });
+        }
+
+        function onTaxCategoryChange() {
+            var select = $('#taxCategorySelect');
+            var option = select.find('option:selected');
+            var value = option.val();
+
+            if (value === '' || value === undefined) {
+                // 未選擇
+                selectedTaxCategoryId = 0;
+                selectedTaxRate = 0;
+                $('#customTaxRow').hide();
+            } else {
+                // 選擇了具體稅目
+                selectedTaxCategoryId = parseInt(value);
+                selectedTaxRate = parseFloat(option.data('rate')) || 0;
+                $('#customTaxRate').val(selectedTaxRate);
+                $('#customTaxRow').show();
+            }
+
+            // 更新隱藏字段
+            $('#taxCategoryId').val(selectedTaxCategoryId);
+            $('#taxRateValue').val(selectedTaxRate);
+
+            calculateTotal();
+        }
+
+        function onCustomTaxRateChange() {
+            selectedTaxRate = parseFloat($('#customTaxRate').val()) || 0;
+            $('#taxRateValue').val(selectedTaxRate);
+            calculateTotal();
+        }
 
         function loadProducts() {
             $.get('/Product/Search?term=', function(data) {
@@ -280,7 +307,10 @@
         function updateProductSelects() {
             $('.product-select').each(function() {
                 var select = $(this);
-                var currentValue = select.val();
+                // 從隱藏的 ProductIds 欄位或現有的選項取得當前值
+                var row = select.closest('tr');
+                var productIdInput = row.find('input[name="ProductIds"]');
+                var currentValue = select.val() || productIdInput.val();
                 select.find('option:gt(0)').remove();
                 products.forEach(function(product) {
                     select.append(`<option value="${product.id}"
@@ -302,7 +332,8 @@
                 <tr>
                     <td>${idx + 1}</td>
                     <td>
-                        <select name="ProductIds" class="form-select form-select-sm product-select" onchange="updateProductInfo(this)">
+                        <input type="hidden" name="ProductIds" value="" />
+                        <select class="form-select form-select-sm product-select" onchange="updateProductInfo(this)">
                             <option value="">請選擇產品</option>
                         </select>
                     </td>
@@ -355,10 +386,12 @@
             var option = $(select).find('option:selected');
             var row = $(select).closest('tr');
             if (option.val()) {
+                row.find('input[name="ProductIds"]').val(option.val());
                 row.find('input[name="ProductNames"]').val(option.data('name'));
                 row.find('input[name="PartNos"]').val(option.data('partno'));
                 row.find('input[name="Units"]').val(option.data('unit'));
-                row.find('.price-input').val(option.data('price'));
+                var price = parseFloat(option.data('price')) || 0;
+                row.find('.price-input').val(price.toFixed(2));
                 calculateRow(select);
             }
         }
@@ -374,28 +407,33 @@
 
         function calculateTotal() {
             var subTotal = 0;
-            var taxableAmount = 0;
 
             $('#detailBody tr').each(function() {
                 var quantity = parseInt($(this).find('.quantity-input').val()) || 0;
                 var price = parseFloat($(this).find('.price-input').val()) || 0;
                 var lineTotal = quantity * price;
                 subTotal += lineTotal;
-
-                var select = $(this).find('.product-select');
-                var option = select.find('option:selected');
-                if (option.data('taxtype') === 0) {
-                    taxableAmount += lineTotal;
-                }
             });
 
-            var taxAmount = Math.round(taxableAmount * 0.05);
-            var otherExpenses = parseFloat($('#OtherExpenses').val()) || 0;
-            var total = subTotal + taxAmount + otherExpenses;
+            // 計算稅金
+            var taxRate = 0;
+            if (selectedTaxCategoryId === 0) {
+                // 零稅
+                taxRate = 0;
+            } else {
+                // 使用自訂稅率
+                taxRate = parseFloat($('#customTaxRate').val()) || 0;
+            }
 
-            $('#subTotal').text(subTotal.toFixed(2));
-            $('#taxAmount').text(taxAmount.toFixed(2));
-            $('#totalAmount').text(total.toFixed(2));
+            // 更新隱藏字段
+            $('#taxRateValue').val(taxRate);
+
+            var taxAmount = Math.round(subTotal * taxRate / 100);
+            var total = subTotal + taxAmount;
+
+            $('#subTotal').text(Math.round(subTotal));
+            $('#taxAmount').text(Math.round(taxAmount));
+            $('#totalAmount').text(Math.round(total));
         }
 
         $('#customerSelect').change(function() {

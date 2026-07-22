@@ -7,6 +7,7 @@
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="CreatedAt" />
     <input type="hidden" asp-for="CreatedBy" />
+    <input type="hidden" asp-for="Unit" id="unitHidden" />
 
     <div class="form-card">
         <div class="form-card-header">
@@ -53,16 +54,22 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         $(document).ready(function() {
+            var currentValue = $('#unitHidden').val() || '';
             $.get('/UnitSetting/GetUnits', function(data) {
                 var select = $('#unitSelect');
-                var currentValue = select.val();
                 select.find('option:gt(0)').remove();
                 data.forEach(function(unit) {
-                    select.append('<option value="' + unit + '">' + unit + '</option>');
+                    var option = $('<option value="' + unit + '">' + unit + '</option>');
+                    if (unit === currentValue) {
+                        option.attr('selected', 'selected');
+                    }
+                    select.append(option);
                 });
-                if (currentValue) {
-                    select.val(currentValue);
-                }
+            });
+
+            // 表單提交前同步 select 值到 hidden field
+            $('#mainForm').on('submit', function() {
+                $('#unitHidden').val($('#unitSelect').val());
             });
         });
     </script>

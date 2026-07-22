@@ -17,8 +17,11 @@ namespace YunChenShipping.Controllers
         }
 
         // GET: Product
-        public async Task<IActionResult> Index(string searchString, TaxType? taxType, bool? isActive)
+        public async Task<IActionResult> Index(string searchString, TaxType? taxType, bool? isActive, int? page)
         {
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+
             var products = from p in _context.Products
                           select p;
 
@@ -39,7 +42,14 @@ namespace YunChenShipping.Controllers
                 products = products.Where(p => p.IsActive == isActive.Value);
             }
 
-            return View(await products.OrderBy(p => p.PartNo).ToListAsync());
+            var sortedProducts = products.OrderByDescending(p => p.CreatedAt);
+            var paginatedList = await PaginatedList<Product>.CreateAsync(sortedProducts, pageNumber, pageSize);
+
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = paginatedList.TotalPages;
+
+            return View(paginatedList);
         }
 
         // GET: Product/Details/5
@@ -186,6 +196,34 @@ namespace YunChenShipping.Controllers
                 product.IsActive = false;
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "產品已停用！";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Product/DeletePermanent/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePermanent(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product != null)
+            {
+                // 檢查是否有關聯的出貨單明細
+                var hasOrders = await _context.ShippingOrderDetails.AnyAsync(d => d.ProductId == id);
+                if (hasOrders)
+                {
+                    TempData["ErrorMessage"] = "此產品已被出貨單使用，無法刪除！";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // 永久刪除關聯數據
+                var priceHistory = await _context.ProductPriceHistories.Where(h => h.ProductId == id).ToListAsync();
+                _context.ProductPriceHistories.RemoveRange(priceHistory);
+
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "產品已永久刪除！";
             }
 
             return RedirectToAction(nameof(Index));

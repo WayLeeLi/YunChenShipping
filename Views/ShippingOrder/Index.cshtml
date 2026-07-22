@@ -1,4 +1,4 @@
-@model IEnumerable<YunChenShipping.Models.ShippingOrder>
+@model YunChenShipping.Models.PaginatedList<YunChenShipping.Models.ShippingOrder>
 @{
     ViewData["Title"] = "出貨單管理";
 }
@@ -73,7 +73,7 @@
                             <td>@item.Customer?.Name</td>
                             <td>@item.OrderDate.ToString("yyyy/MM/dd")</td>
                             <td>@(item.ReferenceNo ?? "-")</td>
-                            <td class="text-end fw-bold">@item.Total.ToString("N2")</td>
+                            <td class="text-end fw-bold">@item.Total.ToString("N0")</td>
                             <td>
                                 @switch (item.Status)
                                 {
@@ -121,6 +121,12 @@
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                 }
+                                <form asp-action="DeletePermanent" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="刪除"
+                                            onclick="return confirm('⚠️ 確定要永久刪除此出貨單嗎？此操作無法復原！')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }
@@ -133,6 +139,10 @@
                 <i class="bi bi-inbox" style="font-size: 2rem;"></i>
                 <p class="mt-2">暫無資料</p>
             </div>
+        }
+        else
+        {
+            @await Html.PartialAsync("_Pager", Model)
         }
     </div>
 </div>

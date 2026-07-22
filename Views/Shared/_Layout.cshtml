@@ -382,6 +382,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "TaxCategory" ? "active" : "")"
+                               asp-controller="TaxCategory" asp-action="Index">
+                                <i class="bi bi-percent"></i> 營業稅設定
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DeliveryMethod" ? "active" : "")"
+                               asp-controller="DeliveryMethod" asp-action="Index">
+                                <i class="bi bi-truck"></i> 運送方式
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                                asp-controller="UserManagement" asp-action="Index">
                                 <i class="bi bi-person-gear"></i> 用戶管理

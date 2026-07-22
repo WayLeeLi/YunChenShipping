@@ -250,11 +250,11 @@
                     <td rowspan="2" style="width:95px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;">
                             <div style="border-bottom:1px solid #000;border-right:1px solid #000;padding:1mm;">銷售額</div>
-                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@Model.SubTotal.ToString("N2")</div>
+                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@Model.SubTotal.ToString("N0")</div>
                             <div style="border-bottom:1px solid #000;border-right:1px solid #000;padding:1mm;">營業稅</div>
-                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@Model.TaxAmount.ToString("N2")</div>
+                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@Model.TaxAmount.ToString("N0")</div>
                             <div style="border-right:1px solid #000;padding:1mm;font-weight:bold;">總 計</div>
-                            <div style="padding:1mm;text-align:right;font-weight:bold;">@Model.Total.ToString("N2")</div>
+                            <div style="padding:1mm;text-align:right;font-weight:bold;">@Model.Total.ToString("N0")</div>
                         </div>
                     </td>
                 </tr>

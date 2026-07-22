@@ -17,9 +17,13 @@ namespace YunChenShipping.Controllers
         }
 
         // GET: Customer
-        public async Task<IActionResult> Index(string searchString, bool? isActive)
+        public async Task<IActionResult> Index(string searchString, bool? isActive, int? page)
         {
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+
             var customers = from c in _context.Customers
+                           .Include(c => c.Contacts)
                            select c;
 
             if (!string.IsNullOrEmpty(searchString))
@@ -35,7 +39,14 @@ namespace YunChenShipping.Controllers
                 customers = customers.Where(c => c.IsActive == isActive.Value);
             }
 
-            return View(await customers.OrderByDescending(c => c.CreatedAt).ToListAsync());
+            var sortedCustomers = customers.OrderByDescending(c => c.CreatedAt);
+            var paginatedList = await PaginatedList<Customer>.CreateAsync(sortedCustomers, pageNumber, pageSize);
+
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = paginatedList.TotalPages;
+
+            return View(paginatedList);
         }
 
         // GET: Customer/Details/5
@@ -75,7 +86,7 @@ namespace YunChenShipping.Controllers
             string[] contactNames,
             string[] contactPhones,
             string[] contactTitles,
-            bool[] contactIsPrimary)
+            int? contactIsPrimary)
         {
             if (ModelState.IsValid)
             {
@@ -115,7 +126,7 @@ namespace YunChenShipping.Controllers
                                 Name = contactNames[i],
                                 Phone = contactPhones != null && i < contactPhones.Length ? contactPhones[i] : null,
                                 Title = contactTitles != null && i < contactTitles.Length ? contactTitles[i] : null,
-                                IsPrimary = contactIsPrimary != null && i < contactIsPrimary.Length ? contactIsPrimary[i] : i == 0
+                                IsPrimary = contactIsPrimary.HasValue ? contactIsPrimary.Value == i : i == 0
                             };
                             _context.CustomerContacts.Add(contact);
                         }
@@ -160,7 +171,7 @@ namespace YunChenShipping.Controllers
             string[] contactNames,
             string[] contactPhones,
             string[] contactTitles,
-            bool[] contactIsPrimary)
+            int? contactIsPrimary)
         {
             if (id != customer.Id)
             {
@@ -227,7 +238,7 @@ namespace YunChenShipping.Controllers
                                     Name = contactNames[i],
                                     Phone = contactPhones != null && i < contactPhones.Length ? contactPhones[i] : null,
                                     Title = contactTitles != null && i < contactTitles.Length ? contactTitles[i] : null,
-                                    IsPrimary = contactIsPrimary != null && i < contactIsPrimary.Length ? contactIsPrimary[i] : i == 0
+                                    IsPrimary = contactIsPrimary.HasValue ? contactIsPrimary.Value == i : i == 0
                                 };
                                 _context.CustomerContacts.Add(contact);
                             }
@@ -265,6 +276,37 @@ namespace YunChenShipping.Controllers
                 customer.IsActive = false;
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "客戶已停用！";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Customer/DeletePermanent/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePermanent(int id)
+        {
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer != null)
+            {
+                // 檢查是否有關聯的出貨單
+                var hasOrders = await _context.ShippingOrders.AnyAsync(o => o.CustomerId == id);
+                if (hasOrders)
+                {
+                    TempData["ErrorMessage"] = "此客戶已有出貨單紀錄，無法刪除！";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // 永久刪除關聯數據
+                var addresses = await _context.CustomerAddresses.Where(a => a.CustomerId == id).ToListAsync();
+                _context.CustomerAddresses.RemoveRange(addresses);
+
+                var contacts = await _context.CustomerContacts.Where(c => c.CustomerId == id).ToListAsync();
+                _context.CustomerContacts.RemoveRange(contacts);
+
+                _context.Customers.Remove(customer);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "客戶已永久刪除！";
             }
 
             return RedirectToAction(nameof(Index));

@@ -20,6 +20,8 @@ namespace YunChenShipping.Data
         public DbSet<ShippingOrderDetail> ShippingOrderDetails { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<TaxCategory> TaxCategories { get; set; }
+        public DbSet<DeliveryMethodSetting> DeliveryMethodSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

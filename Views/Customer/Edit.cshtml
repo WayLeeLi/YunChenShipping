@@ -53,6 +53,7 @@
             <div id="contactContainer">
                 @if (Model.Contacts != null && Model.Contacts.Any())
                 {
+                    var contactIndex = 0;
                     @foreach (var contact in Model.Contacts)
                     {
                         <div class="row mb-2 contact-row align-items-center">
@@ -62,9 +63,10 @@
                             <div class="col"><input type="text" name="contactPhones" class="form-control form-control-sm" value="@contact.Phone" /></div>
                             <label class="form-label-custom">職稱</label>
                             <div class="col"><input type="text" name="contactTitles" class="form-control form-control-sm" value="@contact.Title" /></div>
-                            <div class="col-auto"><div class="form-check"><input type="checkbox" name="contactIsPrimary" class="form-check-input" value="true" @(contact.IsPrimary ? "checked" : "") /><label class="form-check-label small">主要</label></div></div>
+                            <div class="col-auto"><div class="form-check"><input type="radio" name="contactIsPrimary" class="form-check-input" value="@contactIndex" @(contact.IsPrimary ? "checked" : "") /><label class="form-check-label small">主要</label></div></div>
                             <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContact(this)"><i class="bi bi-trash"></i></button></div>
                         </div>
+                        contactIndex++;
                     }
                 }
             </div>
@@ -106,9 +108,10 @@
     <script>
         function addContact() {
             var c = document.getElementById('contactContainer');
+            var index = c.children.length;
             var d = document.createElement('div');
             d.className = 'row mb-2 contact-row align-items-center';
-            d.innerHTML = '<label class="form-label-custom">姓名</label><div class="col"><input type="text" name="contactNames" class="form-control form-control-sm" /></div><label class="form-label-custom">電話</label><div class="col"><input type="text" name="contactPhones" class="form-control form-control-sm" /></div><label class="form-label-custom">職稱</label><div class="col"><input type="text" name="contactTitles" class="form-control form-control-sm" /></div><div class="col-auto"><div class="form-check"><input type="checkbox" name="contactIsPrimary" class="form-check-input" value="true" /><label class="form-check-label small">主要</label></div></div><div class="col-auto"><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContact(this)"><i class="bi bi-trash"></i></button></div>';
+            d.innerHTML = '<label class="form-label-custom">姓名</label><div class="col"><input type="text" name="contactNames" class="form-control form-control-sm" /></div><label class="form-label-custom">電話</label><div class="col"><input type="text" name="contactPhones" class="form-control form-control-sm" /></div><label class="form-label-custom">職稱</label><div class="col"><input type="text" name="contactTitles" class="form-control form-control-sm" /></div><div class="col-auto"><div class="form-check"><input type="radio" name="contactIsPrimary" class="form-check-input" value="' + index + '" /><label class="form-check-label small">主要</label></div></div><div class="col-auto"><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContact(this)"><i class="bi bi-trash"></i></button></div>';
             c.appendChild(d);
         }
         function removeContact(b) { if (b.closest('#contactContainer').children.length > 1) b.closest('.contact-row').remove(); }

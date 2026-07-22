@@ -5,6 +5,8 @@
 }
 
 <form asp-action="Create" method="post" id="orderForm">
+    <input type="hidden" name="TaxCategoryId" id="taxCategoryId" value="0" />
+    <input type="hidden" name="TaxRate" id="taxRateValue" value="0" />
     <div class="form-card">
         <div class="form-card-header">
             <i class="bi bi-file-text"></i> 基本資料
@@ -36,7 +38,10 @@
                 <label class="form-label-custom">承辦人</label>
                 <div class="col"><input asp-for="Handler" class="form-control" /></div>
                 <label class="form-label-custom">運送方式</label>
-                <div class="col"><input asp-for="DeliveryMethod" class="form-control" placeholder="自送、宅配" /></div>
+                <div class="col">
+                    <input type="hidden" name="DeliveryMethod" id="deliveryMethodHidden" value="" />
+                    <select class="form-select" id="deliveryMethodSelect" onchange="document.getElementById('deliveryMethodHidden').value=this.value"><option value="">請選擇</option></select>
+                </div>
             </div>
 
             <div class="row mb-2 align-items-center">
@@ -67,8 +72,8 @@
                             <th>PART NO</th>
                             <th style="width: 100px;">數量</th>
                             <th style="width: 100px;">單位</th>
-                            <th style="width: 110px;">單價</th>
-                            <th style="width: 110px;">小計</th>
+                            <th style="width: 140px;">單價</th>
+                            <th style="width: 140px;">小計</th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
@@ -101,15 +106,26 @@
                                 <div class="col-6"><strong>銷售額：</strong></div>
                                 <div class="col-6 text-end" id="subTotal">0</div>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>營業稅（5%）：</strong></div>
-                                <div class="col-6 text-end" id="taxAmount">0</div>
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-6"><strong>請選擇營業稅類別：</strong></div>
+                                <div class="col-6">
+                                    <select id="taxCategorySelect" class="form-select form-select-sm" onchange="onTaxCategoryChange()">
+                                        <option value="">請選擇營業稅類別</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2 align-items-center" id="customTaxRow" style="display: none;">
+                                <div class="col-6"><strong>稅率：</strong></div>
+                                <div class="col-6">
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" id="customTaxRate" class="form-control" step="0.01" min="0" max="100" value="0" onchange="onCustomTaxRateChange()" />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="row mb-2">
-                                <div class="col-6"><strong>其他費用：</strong></div>
-                                <div class="col-6">
-                                    <input type="number" asp-for="OtherExpenses" class="form-control form-control-sm text-end" step="0.01" onchange="calculateTotal()" style="width: 120px; float: right;" />
-                                </div>
+                                <div class="col-6"><strong>營業稅：</strong></div>
+                                <div class="col-6 text-end" id="taxAmount">0</div>
                             </div>
                             <hr />
                             <div class="row">
@@ -138,10 +154,67 @@
 
     <script>
         var products = [];
+        var taxCategories = [];
+        var selectedTaxCategoryId = 0;
+        var selectedTaxRate = 0;
 
         $(document).ready(function() {
             loadProducts();
+            loadTaxCategories();
+            loadDeliveryMethods();
         });
+
+        function loadDeliveryMethods() {
+            $.get('/DeliveryMethod/GetDeliveryMethods', function(data) {
+                var select = $('#deliveryMethodSelect');
+                select.find('option:gt(0)').remove();
+                data.forEach(function(method) {
+                    select.append(`<option value="${method.name}">${method.name}</option>`);
+                });
+            });
+        }
+
+        function loadTaxCategories() {
+            $.get('/TaxCategory/GetTaxCategories', function(data) {
+                taxCategories = data;
+                var select = $('#taxCategorySelect');
+                select.find('option:gt(0)').remove();
+                data.forEach(function(cat) {
+                    select.append(`<option value="${cat.id}" data-rate="${cat.taxRate}">${cat.name} (${cat.taxRate}%)</option>`);
+                });
+            });
+        }
+
+        function onTaxCategoryChange() {
+            var select = $('#taxCategorySelect');
+            var option = select.find('option:selected');
+            var value = option.val();
+
+            if (value === '' || value === undefined) {
+                // 未選擇
+                selectedTaxCategoryId = 0;
+                selectedTaxRate = 0;
+                $('#customTaxRow').hide();
+            } else {
+                // 選擇了具體稅目
+                selectedTaxCategoryId = parseInt(value);
+                selectedTaxRate = parseFloat(option.data('rate')) || 0;
+                $('#customTaxRate').val(selectedTaxRate);
+                $('#customTaxRow').show();
+            }
+
+            // 更新隱藏字段
+            $('#taxCategoryId').val(selectedTaxCategoryId);
+            $('#taxRateValue').val(selectedTaxRate);
+
+            calculateTotal();
+        }
+
+        function onCustomTaxRateChange() {
+            selectedTaxRate = parseFloat($('#customTaxRate').val()) || 0;
+            $('#taxRateValue').val(selectedTaxRate);
+            calculateTotal();
+        }
 
         function loadProducts() {
             $.get('/Product/Search?term=', function(data) {
@@ -204,7 +277,8 @@
                 row.find('input[name="ProductNames"]').val(option.data('name'));
                 row.find('input[name="PartNos"]').val(option.data('partno'));
                 row.find('input[name="Units"]').val(option.data('unit'));
-                row.find('.price-input').val(option.data('price'));
+                var price = parseFloat(option.data('price')) || 0;
+                row.find('.price-input').val(price.toFixed(2));
                 calculateRow(select);
             }
         }
@@ -220,28 +294,33 @@
 
         function calculateTotal() {
             var subTotal = 0;
-            var taxableAmount = 0;
 
             $('#detailBody tr').each(function() {
                 var quantity = parseInt($(this).find('.quantity-input').val()) || 0;
                 var price = parseFloat($(this).find('.price-input').val()) || 0;
                 var lineTotal = quantity * price;
                 subTotal += lineTotal;
-
-                var select = $(this).find('.product-select');
-                var option = select.find('option:selected');
-                if (option.data('taxtype') === 0) {
-                    taxableAmount += lineTotal;
-                }
             });
 
-            var taxAmount = Math.round(taxableAmount * 0.05);
-            var otherExpenses = parseFloat($('#OtherExpenses').val()) || 0;
-            var total = subTotal + taxAmount + otherExpenses;
+            // 計算稅金
+            var taxRate = 0;
+            if (selectedTaxCategoryId === 0) {
+                // 零稅
+                taxRate = 0;
+            } else {
+                // 使用自訂稅率
+                taxRate = parseFloat($('#customTaxRate').val()) || 0;
+            }
 
-            $('#subTotal').text(subTotal.toFixed(2));
-            $('#taxAmount').text(taxAmount.toFixed(2));
-            $('#totalAmount').text(total.toFixed(2));
+            // 更新隱藏字段
+            $('#taxRateValue').val(taxRate);
+
+            var taxAmount = Math.round(subTotal * taxRate / 100);
+            var total = subTotal + taxAmount;
+
+            $('#subTotal').text(Math.round(subTotal));
+            $('#taxAmount').text(Math.round(taxAmount));
+            $('#totalAmount').text(Math.round(total));
         }
 
         $('#customerSelect').change(function() {

@@ -25,8 +25,12 @@ namespace YunChenShipping.Controllers
             int? customerId,
             DateTime? startDate,
             DateTime? endDate,
-            OrderStatus? status)
+            OrderStatus? status,
+            int? page)
         {
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+
             var orders = from o in _context.ShippingOrders
                          .Include(o => o.Customer)
                         select o;
@@ -59,7 +63,14 @@ namespace YunChenShipping.Controllers
                 orders = orders.Where(o => o.Status == status.Value);
             }
 
-            return View(await orders.OrderByDescending(o => o.OrderDate).ToListAsync());
+            var sortedOrders = orders.OrderByDescending(o => o.OrderNo);
+            var paginatedList = await PaginatedList<ShippingOrder>.CreateAsync(sortedOrders, pageNumber, pageSize);
+
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["CurrentPage"] = pageNumber;
+            ViewData["TotalPages"] = paginatedList.TotalPages;
+
+            return View(paginatedList);
         }
 
         // GET: ShippingOrder/Details/5
@@ -139,7 +150,9 @@ namespace YunChenShipping.Controllers
             [FromForm] string[]? PartNos,
             [FromForm] string[]? Quantities,
             [FromForm] string[]? Units,
-            [FromForm] string[]? UnitPrices)
+            [FromForm] string[]? UnitPrices,
+            [FromForm] int TaxCategoryId,
+            [FromForm] decimal TaxRate)
         {
             // 手動解析陣列
             var productIdList = FormArrayParser.ParseIntList(ProductIds);
@@ -154,10 +167,11 @@ namespace YunChenShipping.Controllers
                 order.CreatedAt = DateTime.Now;
                 order.CreatedBy = User.Identity?.Name;
                 order.Status = OrderStatus.Draft;
+                order.TaxCategoryId = TaxCategoryId;
+                order.TaxRate = TaxRate;
 
                 // 計算金額
                 decimal subTotal = 0;
-                decimal taxAmount = 0;
 
                 if (productIdList.Count > 0 && quantityList.Count > 0 && unitPriceList.Count > 0)
                 {
@@ -167,19 +181,19 @@ namespace YunChenShipping.Controllers
                         {
                             var lineTotal = quantityList[i] * unitPriceList[i];
                             subTotal += lineTotal;
-
-                            // 查詢產品稅別
-                            var product = await _context.Products.FindAsync(productIdList[i]);
-                            if (product != null && product.TaxType == TaxType.Taxable)
-                            {
-                                taxAmount += lineTotal * 0.05m; // 5% 稅率
-                            }
                         }
                     }
                 }
 
+                // 根據稅目計算稅金
+                decimal taxAmount = 0;
+                if (TaxCategoryId > 0 && TaxRate > 0)
+                {
+                    taxAmount = Math.Round(subTotal * TaxRate / 100, 0);
+                }
+
                 order.SubTotal = subTotal;
-                order.TaxAmount = Math.Round(taxAmount, 0);
+                order.TaxAmount = taxAmount;
                 order.Total = subTotal + order.TaxAmount + order.OtherExpenses;
 
                 _context.ShippingOrders.Add(order);
@@ -264,7 +278,9 @@ namespace YunChenShipping.Controllers
             [FromForm] string[]? PartNos,
             [FromForm] string[]? Quantities,
             [FromForm] string[]? Units,
-            [FromForm] string[]? UnitPrices)
+            [FromForm] string[]? UnitPrices,
+            [FromForm] int TaxCategoryId,
+            [FromForm] decimal TaxRate)
         {
             // 手動解析陣列
             var productIdList = FormArrayParser.ParseIntList(ProductIds);
@@ -306,10 +322,11 @@ namespace YunChenShipping.Controllers
                     existingOrder.Remarks = order.Remarks;
                     existingOrder.OtherExpenses = order.OtherExpenses;
                     existingOrder.Handler = order.Handler;
+                    existingOrder.TaxCategoryId = TaxCategoryId;
+                    existingOrder.TaxRate = TaxRate;
 
                     // 計算金額
                     decimal subTotal = 0;
-                    decimal taxAmount = 0;
 
                     if (productIdList.Count > 0 && quantityList.Count > 0 && unitPriceList.Count > 0)
                     {
@@ -319,18 +336,19 @@ namespace YunChenShipping.Controllers
                             {
                                 var lineTotal = quantityList[i] * unitPriceList[i];
                                 subTotal += lineTotal;
-
-                                var product = await _context.Products.FindAsync(productIdList[i]);
-                                if (product != null && product.TaxType == TaxType.Taxable)
-                                {
-                                    taxAmount += lineTotal * 0.05m;
-                                }
                             }
                         }
                     }
 
+                    // 根據稅目計算稅金
+                    decimal taxAmount = 0;
+                    if (TaxCategoryId > 0 && TaxRate > 0)
+                    {
+                        taxAmount = Math.Round(subTotal * TaxRate / 100, 0);
+                    }
+
                     existingOrder.SubTotal = subTotal;
-                    existingOrder.TaxAmount = Math.Round(taxAmount, 0);
+                    existingOrder.TaxAmount = taxAmount;
                     existingOrder.Total = subTotal + existingOrder.TaxAmount + existingOrder.OtherExpenses;
 
                     // 更新明細
@@ -515,6 +533,28 @@ namespace YunChenShipping.Controllers
             TempData["SuccessMessage"] = "出貨單已作廢！";
 
             return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // POST: ShippingOrder/DeletePermanent/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePermanent(int id)
+        {
+            var order = await _context.ShippingOrders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // 永久刪除關聯數據
+            var details = await _context.ShippingOrderDetails.Where(d => d.ShippingOrderId == id).ToListAsync();
+            _context.ShippingOrderDetails.RemoveRange(details);
+
+            _context.ShippingOrders.Remove(order);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "出貨單已永久刪除！";
+
+            return RedirectToAction(nameof(Index));
         }
 
         private bool ShippingOrderExists(int id)

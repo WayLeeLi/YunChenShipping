@@ -32,6 +32,8 @@ namespace YunChenShipping.Controllers
             new MenuDefinition { Key = "Customer", Name = "客戶管理", Controller = "Customer", Action = "Index", Group = "業務管理" },
             new MenuDefinition { Key = "Product", Name = "產品管理", Controller = "Product", Action = "Index", Group = "業務管理" },
             new MenuDefinition { Key = "ShippingOrder", Name = "出貨單管理", Controller = "ShippingOrder", Action = "Index", Group = "業務管理" },
+            new MenuDefinition { Key = "TaxCategory", Name = "營業稅設定", Controller = "TaxCategory", Action = "Index", Group = "系統管理" },
+            new MenuDefinition { Key = "DeliveryMethod", Name = "運送方式", Controller = "DeliveryMethod", Action = "Index", Group = "系統管理" },
             new MenuDefinition { Key = "SystemSetting", Name = "系統設定", Controller = "SystemSetting", Action = "Index", Group = "系統管理" },
             new MenuDefinition { Key = "UserManagement", Name = "用戶管理", Controller = "UserManagement", Action = "Index", Group = "系統管理" },
             new MenuDefinition { Key = "RoleManagement", Name = "角色管理", Controller = "UserManagement", Action = "Roles", Group = "系統管理" },

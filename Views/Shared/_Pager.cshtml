@@ -1,0 +1,61 @@
+@model dynamic
+
+@{
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination justify-content-center">
+            @* 上一頁 *@
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link" href="?page=@(currentPage - 1)&searchString=@ViewData["CurrentFilter"]">&laquo;</a>
+            </li>
+
+            @* 頁碼 *@
+            @{
+                int startPage = Math.Max(1, currentPage - 2);
+                int endPage = Math.Min(totalPages, currentPage + 2);
+            }
+
+            @if (startPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&searchString=@ViewData["CurrentFilter"]">1</a>
+                </li>
+                @if (startPage > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" href="?page=@i&searchString=@ViewData["CurrentFilter"]">@i</a>
+                </li>
+            }
+
+            @if (endPage < totalPages)
+            {
+                @if (endPage < totalPages - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+                <li class="page-item">
+                    <a class="page-link" href="?page=@totalPages&searchString=@ViewData["CurrentFilter"]">@totalPages</a>
+                </li>
+            }
+
+            @* 下一頁 *@
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link" href="?page=@(currentPage + 1)&searchString=@ViewData["CurrentFilter"]">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}
+<div class="text-center text-muted small mt-2">
+    共 @ViewBag.TotalPages 頁，第 @currentPage / @ViewBag.TotalPages 頁
+</div>
