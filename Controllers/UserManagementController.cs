@@ -11,12 +11,12 @@ namespace YunChenShipping.Controllers
     [Authorize(Roles = "Admin")]
     public class UserManagementController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
         public UserManagementController(
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ApplicationDbContext context)
         {
@@ -51,6 +51,7 @@ namespace YunChenShipping.Controllers
                     Id = user.Id,
                     Email = user.Email ?? "",
                     UserName = user.UserName ?? "",
+                    ChineseName = user.ChineseName,
                     Roles = string.Join(", ", roles),
                     EmailConfirmed = user.EmailConfirmed,
                     LockoutEnabled = user.LockoutEnabled
@@ -74,10 +75,11 @@ namespace YunChenShipping.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser
+                var user = new ApplicationUser
                 {
                     UserName = model.Email,
                     Email = model.Email,
+                    ChineseName = model.ChineseName,
                     EmailConfirmed = true
                 };
 
@@ -115,6 +117,7 @@ namespace YunChenShipping.Controllers
             {
                 Id = user.Id,
                 Email = user.Email ?? "",
+                ChineseName = user.ChineseName,
                 CurrentRole = roles.FirstOrDefault() ?? ""
             };
 
@@ -136,6 +139,7 @@ namespace YunChenShipping.Controllers
 
                 user.Email = model.Email;
                 user.UserName = model.Email;
+                user.ChineseName = model.ChineseName;
                 await _userManager.UpdateAsync(user);
 
                 var currentRoles = await _userManager.GetRolesAsync(user);
@@ -338,6 +342,7 @@ namespace YunChenShipping.Controllers
         public string Id { get; set; } = "";
         public string Email { get; set; } = "";
         public string UserName { get; set; } = "";
+        public string? ChineseName { get; set; }
         public string Roles { get; set; } = "";
         public bool EmailConfirmed { get; set; }
         public bool LockoutEnabled { get; set; }
@@ -349,6 +354,10 @@ namespace YunChenShipping.Controllers
         [EmailAddress(ErrorMessage = "請輸入有效的電子郵件")]
         [Display(Name = "帳號(電子郵件)")]
         public string Email { get; set; } = "";
+
+        [StringLength(50)]
+        [Display(Name = "中文名")]
+        public string? ChineseName { get; set; }
 
         [Required(ErrorMessage = "密碼為必填")]
         [StringLength(100, ErrorMessage = "{0} 必須至少包含 {2} 個字元。", MinimumLength = 6)]
@@ -373,6 +382,10 @@ namespace YunChenShipping.Controllers
         [EmailAddress(ErrorMessage = "請輸入有效的電子郵件")]
         [Display(Name = "帳號(電子郵件)")]
         public string Email { get; set; } = "";
+
+        [StringLength(50)]
+        [Display(Name = "中文名")]
+        public string? ChineseName { get; set; }
 
         [Display(Name = "角色")]
         public string CurrentRole { get; set; } = "";

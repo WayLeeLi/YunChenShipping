@@ -82,7 +82,7 @@
                 <label class="form-label-custom">付款方式</label>
             </div>
             <div class="col-md-4">
-                <span>@Model.PaymentMethod</span>
+                <span>@Html.DisplayFor(model => model.PaymentMethod)</span>
             </div>
         </div>
 
@@ -106,7 +106,7 @@
                 <label class="form-label-custom">承辦人</label>
             </div>
             <div class="col-md-4">
-                <span>@(Model.Handler ?? "-")</span>
+                <span>@ViewBag.HandlerChineseName</span>
             </div>
         </div>
 

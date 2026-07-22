@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YunChenShipping.Data;
@@ -10,10 +11,12 @@ namespace YunChenShipping.Controllers
     public class ShippingOrderController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ShippingOrderController(ApplicationDbContext context)
+        public ShippingOrderController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: ShippingOrder
@@ -76,6 +79,17 @@ namespace YunChenShipping.Controllers
             if (shippingOrder == null)
             {
                 return NotFound();
+            }
+
+            // 獲取承辦人中文名
+            if (!string.IsNullOrEmpty(shippingOrder.Handler))
+            {
+                var handler = await _userManager.FindByNameAsync(shippingOrder.Handler);
+                ViewBag.HandlerChineseName = handler?.ChineseName ?? shippingOrder.Handler;
+            }
+            else
+            {
+                ViewBag.HandlerChineseName = "-";
             }
 
             return View(shippingOrder);
@@ -406,6 +420,10 @@ namespace YunChenShipping.Controllers
             var isAdmin = User.IsInRole("Admin");
             var isAccounting = User.IsInRole("Accounting");
 
+            // 獲取用戶中文名
+            var user = await _userManager.FindByNameAsync(currentUser ?? "");
+            var chineseName = user?.ChineseName ?? currentUser;
+
             // 權限檢查
             switch (approveType)
             {
@@ -461,12 +479,12 @@ namespace YunChenShipping.Controllers
             {
                 case "manager":
                     order.ManagerApproved = true;
-                    order.ManagerName = currentUser;
+                    order.ManagerName = chineseName;
                     order.ManagerApprovedAt = DateTime.Now;
                     break;
                 case "accounting":
                     order.AccountingApproved = true;
-                    order.AccountingName = currentUser;
+                    order.AccountingName = chineseName;
                     order.AccountingApprovedAt = DateTime.Now;
                     break;
                 case "handler":

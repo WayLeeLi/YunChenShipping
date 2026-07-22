@@ -141,4 +141,4 @@ D:\test\YunChenShipping\obj\Debug\net8.0\YunChenShipping.pdb
 D:\test\YunChenShipping\obj\Debug\net8.0\YunChenShipping.genruntimeconfig.cache
 D:\test\YunChenShipping\obj\Debug\net8.0\ref\YunChenShipping.dll
 D:\test\YunChenShipping\obj\Debug\net8.0\YunChenShipping.sourcelink.json
-D:\test\YunChenShipping\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\test\YunChenShipping\bin\Debug\net8.0\dotnet-tools.json

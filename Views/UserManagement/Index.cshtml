@@ -21,6 +21,7 @@
                 <thead>
                     <tr>
                         <th>帳號</th>
+                        <th>中文名</th>
                         <th>角色</th>
                         <th>狀態</th>
                         <th>操作</th>
@@ -31,6 +32,7 @@
                     {
                         <tr>
                             <td>@item.Email</td>
+                            <td>@(item.ChineseName ?? "-")</td>
                             <td>
                                 @if (item.Roles.Contains("Admin"))
                                 {

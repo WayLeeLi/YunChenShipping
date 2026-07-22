@@ -17,8 +17,15 @@
             <div class="row mb-2 align-items-center">
                 <label class="form-label-custom"><span class="required">●</span> 帳號</label>
                 <div class="col"><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="text-danger small"></span></div>
+                <label class="form-label-custom">中文名</label>
+                <div class="col"><input asp-for="ChineseName" class="form-control" placeholder="例如：張三" /><span asp-validation-for="ChineseName" class="text-danger small"></span></div>
+            </div>
+
+            <div class="row mb-2 align-items-center">
                 <label class="form-label-custom">角色</label>
                 <div class="col"><select asp-for="CurrentRole" class="form-select"><option value="">請選擇</option>@if (roles != null) { @foreach (var role in roles) { <option value="@role">@role</option> } }</select></div>
+                <label class="form-label-custom">新密碼</label>
+                <div class="col"><input asp-for="NewPassword" class="form-control" placeholder="留空則不修改" /></div>
             </div>
 
             <div class="row mb-2 align-items-center">
