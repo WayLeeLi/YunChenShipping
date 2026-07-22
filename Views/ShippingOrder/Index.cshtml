@@ -60,6 +60,7 @@
                         <th>出貨日期</th>
                         <th>訂單號碼</th>
                         <th class="text-end">總計</th>
+                        <th>排序</th>
                         <th>狀態</th>
                         <th>簽核</th>
                         <th>操作</th>
@@ -74,6 +75,7 @@
                             <td>@item.OrderDate.ToString("yyyy/MM/dd")</td>
                             <td>@(item.ReferenceNo ?? "-")</td>
                             <td class="text-end fw-bold">@item.Total.ToString("N0")</td>
+                            <td>@item.SortOrder</td>
                             <td>
                                 @switch (item.Status)
                                 {

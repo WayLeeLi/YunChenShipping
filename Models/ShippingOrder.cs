@@ -106,6 +106,9 @@ namespace YunChenShipping.Models
         [Display(Name = "承辦簽核時間")]
         public DateTime? HandlerApprovedAt { get; set; }
 
+        [Display(Name = "排序")]
+        public int SortOrder { get; set; }
+
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

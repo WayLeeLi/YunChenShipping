@@ -39,7 +39,7 @@ namespace YunChenShipping.Controllers
                 customers = customers.Where(c => c.IsActive == isActive.Value);
             }
 
-            var sortedCustomers = customers.OrderByDescending(c => c.CreatedAt);
+            var sortedCustomers = customers.OrderBy(c => c.SortOrder).ThenByDescending(c => c.CreatedAt);
             var paginatedList = await PaginatedList<Customer>.CreateAsync(sortedCustomers, pageNumber, pageSize);
 
             ViewData["CurrentFilter"] = searchString;
@@ -80,7 +80,7 @@ namespace YunChenShipping.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("Name,Phone,Fax,TaxId,PaymentMethod,Remarks")] Customer customer,
+            [Bind("Name,Phone,Fax,TaxId,PaymentMethod,Remarks,SortOrder")] Customer customer,
             string[] addresses,
             bool[] addressIsDefault,
             string[] contactNames,
@@ -165,7 +165,7 @@ namespace YunChenShipping.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
-            [Bind("Id,Name,Phone,Fax,TaxId,PaymentMethod,Remarks,IsActive")] Customer customer,
+            [Bind("Id,Name,Phone,Fax,TaxId,PaymentMethod,Remarks,IsActive,SortOrder")] Customer customer,
             string[] addresses,
             bool[] addressIsDefault,
             string[] contactNames,
@@ -196,6 +196,7 @@ namespace YunChenShipping.Controllers
                     existingCustomer.PaymentMethod = customer.PaymentMethod;
                     existingCustomer.Remarks = customer.Remarks;
                     existingCustomer.IsActive = customer.IsActive;
+                    existingCustomer.SortOrder = customer.SortOrder;
 
                     // 更新地址
                     var existingAddresses = await _context.CustomerAddresses

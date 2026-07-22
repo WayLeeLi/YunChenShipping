@@ -42,7 +42,7 @@ namespace YunChenShipping.Controllers
                 products = products.Where(p => p.IsActive == isActive.Value);
             }
 
-            var sortedProducts = products.OrderByDescending(p => p.CreatedAt);
+            var sortedProducts = products.OrderBy(p => p.SortOrder).ThenByDescending(p => p.CreatedAt);
             var paginatedList = await PaginatedList<Product>.CreateAsync(sortedProducts, pageNumber, pageSize);
 
             ViewData["CurrentFilter"] = searchString;
@@ -81,7 +81,7 @@ namespace YunChenShipping.Controllers
         // POST: Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,PartNo,Unit,StandardPrice,TaxType,Remarks")] Product product)
+        public async Task<IActionResult> Create([Bind("Name,PartNo,Unit,StandardPrice,TaxType,Remarks,SortOrder")] Product product)
         {
             if (ModelState.IsValid)
             {
@@ -127,7 +127,7 @@ namespace YunChenShipping.Controllers
         // POST: Product/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,PartNo,Unit,StandardPrice,TaxType,Remarks,IsActive")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,PartNo,Unit,StandardPrice,TaxType,Remarks,IsActive,SortOrder")] Product product)
         {
             if (id != product.Id)
             {
@@ -164,6 +164,7 @@ namespace YunChenShipping.Controllers
                     existingProduct.TaxType = product.TaxType;
                     existingProduct.Remarks = product.Remarks;
                     existingProduct.IsActive = product.IsActive;
+                    existingProduct.SortOrder = product.SortOrder;
 
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "產品更新成功！";

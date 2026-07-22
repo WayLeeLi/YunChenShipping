@@ -39,6 +39,9 @@ namespace YunChenShipping.Models
         [Display(Name = "狀態")]
         public bool IsActive { get; set; } = true;
 
+        [Display(Name = "排序")]
+        public int SortOrder { get; set; }
+
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

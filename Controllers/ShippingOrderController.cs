@@ -63,7 +63,7 @@ namespace YunChenShipping.Controllers
                 orders = orders.Where(o => o.Status == status.Value);
             }
 
-            var sortedOrders = orders.OrderByDescending(o => o.OrderNo);
+            var sortedOrders = orders.OrderBy(o => o.SortOrder).ThenByDescending(o => o.OrderNo);
             var paginatedList = await PaginatedList<ShippingOrder>.CreateAsync(sortedOrders, pageNumber, pageSize);
 
             ViewData["CurrentFilter"] = searchString;
@@ -144,7 +144,7 @@ namespace YunChenShipping.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("OrderNo,CustomerId,InvoiceNo,OrderDate,ReferenceNo,ProjectNo,PaymentMethod,DeliveryMethod,DeliveryAddress,Remarks,OtherExpenses,Handler")] ShippingOrder order,
+            [Bind("OrderNo,CustomerId,InvoiceNo,OrderDate,ReferenceNo,ProjectNo,PaymentMethod,DeliveryMethod,DeliveryAddress,Remarks,OtherExpenses,Handler,SortOrder")] ShippingOrder order,
             [FromForm] string[]? ProductIds,
             [FromForm] string[]? ProductNames,
             [FromForm] string[]? PartNos,
@@ -272,7 +272,7 @@ namespace YunChenShipping.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            [Bind("Id,OrderNo,CustomerId,InvoiceNo,OrderDate,ReferenceNo,ProjectNo,PaymentMethod,DeliveryMethod,DeliveryAddress,Remarks,OtherExpenses,Handler")] ShippingOrder order,
+            [Bind("Id,OrderNo,CustomerId,InvoiceNo,OrderDate,ReferenceNo,ProjectNo,PaymentMethod,DeliveryMethod,DeliveryAddress,Remarks,OtherExpenses,Handler,SortOrder")] ShippingOrder order,
             [FromForm] string[]? ProductIds,
             [FromForm] string[]? ProductNames,
             [FromForm] string[]? PartNos,
@@ -324,6 +324,7 @@ namespace YunChenShipping.Controllers
                     existingOrder.Handler = order.Handler;
                     existingOrder.TaxCategoryId = TaxCategoryId;
                     existingOrder.TaxRate = TaxRate;
+                    existingOrder.SortOrder = order.SortOrder;
 
                     // 計算金額
                     decimal subTotal = 0;
@@ -730,6 +731,17 @@ namespace YunChenShipping.Controllers
             ViewBag.CompanyAddress = settings.FirstOrDefault(s => s.SettingKey == "CompanyAddress")?.SettingValue ?? "";
             ViewBag.CompanyPhone = settings.FirstOrDefault(s => s.SettingKey == "CompanyPhone")?.SettingValue ?? "";
             ViewBag.CompanyFax = settings.FirstOrDefault(s => s.SettingKey == "CompanyFax")?.SettingValue ?? "";
+
+            // 讀取稅目名稱
+            if (shippingOrder.TaxCategoryId > 0)
+            {
+                var taxCategory = await _context.TaxCategories.FindAsync(shippingOrder.TaxCategoryId);
+                ViewBag.TaxCategoryName = taxCategory?.Name ?? "";
+            }
+            else
+            {
+                ViewBag.TaxCategoryName = "";
+            }
 
             return View(shippingOrder);
         }
