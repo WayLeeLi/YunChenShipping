@@ -12,12 +12,12 @@ namespace YunChenShipping.Controllers
     public class UserManagementController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
         public UserManagementController(
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<ApplicationRole> roleManager,
             ApplicationDbContext context)
         {
             _userManager = userManager;
@@ -35,6 +35,7 @@ namespace YunChenShipping.Controllers
             new MenuDefinition { Key = "TaxCategory", Name = "營業稅設定", Controller = "TaxCategory", Action = "Index", Group = "系統管理" },
             new MenuDefinition { Key = "DeliveryMethod", Name = "運送方式", Controller = "DeliveryMethod", Action = "Index", Group = "系統管理" },
             new MenuDefinition { Key = "SystemSetting", Name = "系統設定", Controller = "SystemSetting", Action = "Index", Group = "系統管理" },
+            new MenuDefinition { Key = "UnitSetting", Name = "單位設定", Controller = "UnitSetting", Action = "Index", Group = "系統管理" },
             new MenuDefinition { Key = "UserManagement", Name = "用戶管理", Controller = "UserManagement", Action = "Index", Group = "系統管理" },
             new MenuDefinition { Key = "RoleManagement", Name = "角色管理", Controller = "UserManagement", Action = "Roles", Group = "系統管理" },
         };
@@ -54,7 +55,7 @@ namespace YunChenShipping.Controllers
                     Email = user.Email ?? "",
                     UserName = user.UserName ?? "",
                     ChineseName = user.ChineseName,
-                    Roles = string.Join(", ", roles),
+                    Roles = roles.ToList(),
                     EmailConfirmed = user.EmailConfirmed,
                     LockoutEnabled = user.LockoutEnabled
                 });
@@ -194,27 +195,23 @@ namespace YunChenShipping.Controllers
         // POST: UserManagement/CreateRole
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateRole(string roleName)
+        public async Task<IActionResult> CreateRole(string roleName, string? roleCode, string? description, bool isActive = true, int sortOrder = 0)
         {
             if (!string.IsNullOrEmpty(roleName))
             {
-                var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+                var role = new ApplicationRole
+                {
+                    Name = roleName,
+                    RoleCode = roleCode,
+                    Description = description,
+                    IsActive = isActive,
+                    IsSystem = false,
+                    SortOrder = sortOrder,
+                    CreatedAt = DateTime.Now
+                };
+                var result = await _roleManager.CreateAsync(role);
                 if (result.Succeeded)
                 {
-                    foreach (var menu in AllMenus)
-                    {
-                        _context.RolePermissions.Add(new RolePermission
-                        {
-                            RoleName = roleName,
-                            MenuKey = menu.Key,
-                            MenuName = menu.Name,
-                            Controller = menu.Controller,
-                            Action = menu.Action,
-                            IsVisible = true,
-                            Group = menu.Group
-                        });
-                    }
-                    await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "角色建立成功！";
                 }
                 else
@@ -233,7 +230,7 @@ namespace YunChenShipping.Controllers
             var role = await _roleManager.FindByIdAsync(id);
             if (role != null)
             {
-                if (role.Name == "Admin" || role.Name == "Sales" || role.Name == "Accounting" || role.Name == "Warehouse")
+                if (role.IsSystem)
                 {
                     TempData["ErrorMessage"] = "無法刪除系統預設角色！";
                     return RedirectToAction(nameof(Roles));
@@ -243,6 +240,48 @@ namespace YunChenShipping.Controllers
                 await _roleManager.DeleteAsync(role);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "角色已刪除！";
+            }
+            return RedirectToAction(nameof(Roles));
+        }
+
+        // POST: UserManagement/EditRole
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditRole(string id, string roleName, string? roleCode, string? description, bool isActive = true, int sortOrder = 0)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                TempData["ErrorMessage"] = "角色不存在！";
+                return RedirectToAction(nameof(Roles));
+            }
+
+            // 更新 RolePermissions 中的 RoleName（若角色名稱有變更）
+            if (role.Name != roleName && !string.IsNullOrEmpty(roleName))
+            {
+                var permissions = await _context.RolePermissions.Where(p => p.RoleName == role.Name).ToListAsync();
+                foreach (var perm in permissions)
+                {
+                    perm.RoleName = roleName;
+                }
+            }
+
+            role.Name = roleName;
+            role.RoleCode = roleCode;
+            role.Description = description;
+            role.IsActive = isActive;
+            role.SortOrder = sortOrder;
+            role.UpdatedAt = DateTime.Now;
+
+            var result = await _roleManager.UpdateAsync(role);
+            if (result.Succeeded)
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "角色更新成功！";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "角色更新失敗！";
             }
             return RedirectToAction(nameof(Roles));
         }
@@ -259,21 +298,20 @@ namespace YunChenShipping.Controllers
                 .Where(p => p.RoleName == roleName)
                 .ToListAsync();
 
-            if (!permissions.Any())
+            // 補充 AllMenus 中存在但資料庫中沒有的菜單（僅顯示，不寫入資料庫）
+            var existingKeys = permissions.Select(p => p.MenuKey).ToList();
+            foreach (var menu in AllMenus.Where(m => !existingKeys.Contains(m.Key)))
             {
-                foreach (var menu in AllMenus)
+                permissions.Add(new RolePermission
                 {
-                    permissions.Add(new RolePermission
-                    {
-                        RoleName = roleName,
-                        MenuKey = menu.Key,
-                        MenuName = menu.Name,
-                        Controller = menu.Controller,
-                        Action = menu.Action,
-                        IsVisible = true,
-                        Group = menu.Group
-                    });
-                }
+                    RoleName = roleName,
+                    MenuKey = menu.Key,
+                    MenuName = menu.Name,
+                    Controller = menu.Controller,
+                    Action = menu.Action,
+                    IsVisible = false,
+                    Group = menu.Group
+                });
             }
 
             var model = new RolePermissionViewModel
@@ -345,7 +383,7 @@ namespace YunChenShipping.Controllers
         public string Email { get; set; } = "";
         public string UserName { get; set; } = "";
         public string? ChineseName { get; set; }
-        public string Roles { get; set; } = "";
+        public List<string> Roles { get; set; } = new();
         public bool EmailConfirmed { get; set; }
         public bool LockoutEnabled { get; set; }
     }

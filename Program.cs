@@ -20,7 +20,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
 })
-.AddRoles<IdentityRole>()
+.AddRoles<ApplicationRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // 配置 Cookie 過期時間（7天）
@@ -54,16 +54,22 @@ app.UseRequestLocalization(localizationOptions);
 // 初始化角色和管理員帳號
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-    string[] roleNames = { "Admin", "Sales", "Accounting", "Warehouse" };
-    foreach (var roleName in roleNames)
+    var seedRoles = new[]
     {
-        var roleExist = await roleManager.RoleExistsAsync(roleName);
+        new ApplicationRole { Name = "Admin", RoleCode = "ADMIN", Description = "系統管理員，擁有所有權限", IsSystem = true, IsActive = true, SortOrder = 1 },
+        new ApplicationRole { Name = "Sales", RoleCode = "SALES", Description = "業務人員，管理客戶與出貨單", IsSystem = true, IsActive = true, SortOrder = 2 },
+        new ApplicationRole { Name = "Accounting", RoleCode = "ACCOUNTING", Description = "會計人員，管理帳務相關", IsSystem = true, IsActive = true, SortOrder = 3 },
+        new ApplicationRole { Name = "Warehouse", RoleCode = "WAREHOUSE", Description = "倉庫人員，管理出貨作業", IsSystem = true, IsActive = true, SortOrder = 4 },
+    };
+    foreach (var role in seedRoles)
+    {
+        var roleExist = await roleManager.RoleExistsAsync(role.Name!);
         if (!roleExist)
         {
-            await roleManager.CreateAsync(new IdentityRole(roleName));
+            await roleManager.CreateAsync(role);
         }
     }
 

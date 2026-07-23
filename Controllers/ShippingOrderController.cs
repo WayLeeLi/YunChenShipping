@@ -116,17 +116,21 @@ namespace YunChenShipping.Controllers
 
             // 生成出貨單號
             var today = DateTime.Now;
-            var orderNo = $"SO-{today:yyyyMMdd}-001";
+            var prefix = await _context.SystemSettings
+                .Where(s => s.SettingKey == "OrderNoPrefix")
+                .Select(s => s.SettingValue)
+                .FirstOrDefaultAsync() ?? "SO";
+            var orderNo = $"{prefix}-{today:yyyyMMdd}-001";
 
             var lastOrder = await _context.ShippingOrders
-                .Where(o => o.OrderNo.StartsWith($"SO-{today:yyyyMMdd}"))
+                .Where(o => o.OrderNo.StartsWith($"{prefix}-{today:yyyyMMdd}"))
                 .OrderByDescending(o => o.OrderNo)
                 .FirstOrDefaultAsync();
 
             if (lastOrder != null)
             {
                 var lastNumber = int.Parse(lastOrder.OrderNo.Split('-').Last());
-                orderNo = $"SO-{today:yyyyMMdd}-{(lastNumber + 1):D3}";
+                orderNo = $"{prefix}-{today:yyyyMMdd}-{(lastNumber + 1):D3}";
             }
 
             var model = new ShippingOrder
@@ -654,15 +658,19 @@ namespace YunChenShipping.Controllers
 
             // 生成新出貨單號
             var today = DateTime.Now;
-            var orderNo = $"SO-{today:yyyyMMdd}-001";
+            var prefix = await _context.SystemSettings
+                .Where(s => s.SettingKey == "OrderNoPrefix")
+                .Select(s => s.SettingValue)
+                .FirstOrDefaultAsync() ?? "SO";
+            var orderNo = $"{prefix}-{today:yyyyMMdd}-001";
             var lastOrder = await _context.ShippingOrders
-                .Where(o => o.OrderNo.StartsWith($"SO-{today:yyyyMMdd}"))
+                .Where(o => o.OrderNo.StartsWith($"{prefix}-{today:yyyyMMdd}"))
                 .OrderByDescending(o => o.OrderNo)
                 .FirstOrDefaultAsync();
             if (lastOrder != null)
             {
                 var lastNumber = int.Parse(lastOrder.OrderNo.Split('-').Last());
-                orderNo = $"SO-{today:yyyyMMdd}-{(lastNumber + 1):D3}";
+                orderNo = $"{prefix}-{today:yyyyMMdd}-{(lastNumber + 1):D3}";
             }
 
             // 建立新出貨單

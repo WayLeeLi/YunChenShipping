@@ -345,68 +345,92 @@
 
                 <div class="menu-section">業務管理</div>
                 <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")"
-                           asp-controller="Customer" asp-action="Index">
-                            <i class="bi bi-people"></i> 客戶管理
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")"
-                           asp-controller="Product" asp-action="Index">
-                            <i class="bi bi-box"></i> 產品管理
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ShippingOrder" ? "active" : "")"
-                           asp-controller="ShippingOrder" asp-action="Index">
-                            <i class="bi bi-truck"></i> 出貨單管理
-                        </a>
-                    </li>
+                    @if (CanSee("Customer"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" ? "active" : "")"
+                               asp-controller="Customer" asp-action="Index">
+                                <i class="bi bi-people"></i> 客戶管理
+                            </a>
+                        </li>
+                    }
+                    @if (CanSee("Product"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")"
+                               asp-controller="Product" asp-action="Index">
+                                <i class="bi bi-box"></i> 產品管理
+                            </a>
+                        </li>
+                    }
+                    @if (CanSee("ShippingOrder"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ShippingOrder" ? "active" : "")"
+                               asp-controller="ShippingOrder" asp-action="Index">
+                                <i class="bi bi-truck"></i> 出貨單管理
+                            </a>
+                        </li>
+                    }
                 </ul>
 
-                @if (User.IsInRole("Admin"))
-                {
-                    <div class="menu-section">系統管理</div>
-                    <ul class="nav flex-column">
+                <div class="menu-section">系統管理</div>
+                <ul class="nav flex-column">
+                    @if (CanSee("SystemSetting"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SystemSetting" ? "active" : "")"
                                asp-controller="SystemSetting" asp-action="Index">
                                 <i class="bi bi-gear"></i> 系統設定
                             </a>
                         </li>
+                    }
+                    @if (CanSee("UnitSetting"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UnitSetting" ? "active" : "")"
                                asp-controller="UnitSetting" asp-action="Index">
                                 <i class="bi bi-list-ul"></i> 單位設定
                             </a>
                         </li>
+                    }
+                    @if (CanSee("TaxCategory"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "TaxCategory" ? "active" : "")"
                                asp-controller="TaxCategory" asp-action="Index">
                                 <i class="bi bi-percent"></i> 營業稅設定
                             </a>
                         </li>
+                    }
+                    @if (CanSee("DeliveryMethod"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DeliveryMethod" ? "active" : "")"
                                asp-controller="DeliveryMethod" asp-action="Index">
                                 <i class="bi bi-truck"></i> 運送方式
                             </a>
                         </li>
+                    }
+                    @if (CanSee("UserManagement"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                                asp-controller="UserManagement" asp-action="Index">
                                 <i class="bi bi-person-gear"></i> 用戶管理
                             </a>
                         </li>
+                    }
+                    @if (CanSee("RoleManagement"))
+                    {
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" && ViewContext.RouteData.Values["action"]?.ToString() == "Roles" ? "active" : "")"
                                asp-controller="UserManagement" asp-action="Roles">
                                 <i class="bi bi-shield"></i> 角色管理
                             </a>
                         </li>
-                    </ul>
-                }
+                    }
+                </ul>
             </div>
             <div class="sidebar-footer">
                 <ul class="nav flex-column">

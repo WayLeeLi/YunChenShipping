@@ -1,6 +1,16 @@
 @model IEnumerable<YunChenShipping.Controllers.UserViewModel>
 @{
     ViewData["Title"] = "用戶管理";
+
+    // 角色顯示名稱與顏色對應
+    var roleDisplay = new Dictionary<string, (string Label, string Css)>
+    {
+        { "Admin", ("管理員", "bg-danger") },
+        { "Sales", ("業務", "bg-primary") },
+        { "Accounting", ("會計", "bg-success") },
+        { "Warehouse", ("倉管", "bg-warning text-dark") },
+    };
+    string defaultCss = "bg-secondary";
 }
 
 <div class="form-card">
@@ -34,21 +44,13 @@
                             <td>@item.Email</td>
                             <td>@(item.ChineseName ?? "-")</td>
                             <td>
-                                @if (item.Roles.Contains("Admin"))
+                                @if (item.Roles.Any())
                                 {
-                                    <span class="badge bg-danger">管理員</span>
-                                }
-                                else if (item.Roles.Contains("Sales"))
-                                {
-                                    <span class="badge bg-primary">業務</span>
-                                }
-                                else if (item.Roles.Contains("Accounting"))
-                                {
-                                    <span class="badge bg-success">會計</span>
-                                }
-                                else if (item.Roles.Contains("Warehouse"))
-                                {
-                                    <span class="badge bg-warning">倉管</span>
+                                    foreach (var roleName in item.Roles)
+                                    {
+                                        var (label, css) = roleDisplay.TryGetValue(roleName, out var r) ? r : (roleName, defaultCss);
+                                        <span class="badge @css me-1">@label</span>
+                                    }
                                 }
                                 else
                                 {

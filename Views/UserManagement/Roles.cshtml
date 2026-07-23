@@ -1,4 +1,4 @@
-@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+@model IEnumerable<YunChenShipping.Models.ApplicationRole>
 @{
     ViewData["Title"] = "角色管理";
 }
@@ -17,60 +17,60 @@
                 <thead>
                     <tr>
                         <th>角色名稱</th>
-                        <th>說明</th>
+                        <th>角色編碼</th>
+                        <th>描述</th>
+                        <th>狀態</th>
+                        <th>排序</th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var role in Model)
+                    @foreach (var role in Model.OrderBy(r => r.SortOrder))
                     {
                         <tr>
                             <td>
                                 @switch (role.Name)
                                 {
                                     case "Admin":
-                                        <span class="badge bg-danger">Admin</span>
+                                        <span class="badge bg-danger">@role.Name</span>
                                         break;
                                     case "Sales":
-                                        <span class="badge bg-primary">Sales</span>
+                                        <span class="badge bg-primary">@role.Name</span>
                                         break;
                                     case "Accounting":
-                                        <span class="badge bg-success">Accounting</span>
+                                        <span class="badge bg-success">@role.Name</span>
                                         break;
                                     case "Warehouse":
-                                        <span class="badge bg-warning">Warehouse</span>
+                                        <span class="badge bg-warning">@role.Name</span>
                                         break;
                                     default:
                                         <span class="badge bg-secondary">@role.Name</span>
                                         break;
                                 }
                             </td>
+                            <td>@(role.RoleCode ?? "-")</td>
+                            <td>@(role.Description ?? "-")</td>
                             <td>
-                                @switch (role.Name)
+                                @if (role.IsActive)
                                 {
-                                    case "Admin":
-                                        <span>系統管理員，擁有所有權限</span>
-                                        break;
-                                    case "Sales":
-                                        <span>業務人員，可管理客戶、產品、出貨單</span>
-                                        break;
-                                    case "Accounting":
-                                        <span>會計人員，可簽核出貨單、查看報表</span>
-                                        break;
-                                    case "Warehouse":
-                                        <span>倉管人員，可管理出貨流程</span>
-                                        break;
-                                    default:
-                                        <span>-</span>
-                                        break;
+                                    <span class="badge bg-success">啟用</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">停用</span>
                                 }
                             </td>
+                            <td>@role.SortOrder</td>
                             <td>
                                 <a asp-action="EditRolePermissions" asp-route-roleName="@role.Name"
                                    class="btn btn-sm btn-outline-primary" title="設定權限">
                                     <i class="bi bi-key"></i> 設定權限
                                 </a>
-                                @if (role.Name != "Admin" && role.Name != "Sales" && role.Name != "Accounting" && role.Name != "Warehouse")
+                                <button type="button" class="btn btn-sm btn-outline-secondary" title="編輯"
+                                        onclick="openEditRoleModal('@role.Id', '@role.Name', '@role.RoleCode', '@role.Description', @role.IsActive.ToString().ToLower(), @role.SortOrder)">
+                                    <i class="bi bi-pencil"></i> 編輯
+                                </button>
+                                @if (!role.IsSystem)
                                 {
                                     <form asp-action="DeleteRole" asp-route-id="@role.Id" method="post" style="display:inline;">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="刪除"
@@ -103,8 +103,29 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">角色名稱</label>
+                        <label class="form-label fw-bold">角色名稱 <span class="text-danger">*</span></label>
                         <input type="text" name="roleName" class="form-control" placeholder="請輸入角色名稱" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">角色編碼</label>
+                        <input type="text" name="roleCode" class="form-control" placeholder="例如：MANAGER" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">描述</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="請輸入角色描述"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">排序</label>
+                            <input type="number" name="sortOrder" class="form-control" value="0" min="0" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">是否啟用</label>
+                            <div class="form-check form-switch mt-2">
+                                <input type="checkbox" name="isActive" value="true" class="form-check-input" checked />
+                                <label class="form-check-label">啟用</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -116,8 +137,67 @@
     </div>
 </div>
 
+<!-- 編輯角色 Modal -->
+<div class="modal fade" id="editRoleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="EditRole" method="post">
+                <input type="hidden" name="id" id="editRoleId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">編輯角色</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">角色名稱 <span class="text-danger">*</span></label>
+                        <input type="text" name="roleName" id="editRoleName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">角色編碼</label>
+                        <input type="text" name="roleCode" id="editRoleCode" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">描述</label>
+                        <textarea name="description" id="editRoleDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">排序</label>
+                            <input type="number" name="sortOrder" id="editRoleSortOrder" class="form-control" min="0" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">是否啟用</label>
+                            <div class="form-check form-switch mt-2">
+                                <input type="checkbox" name="isActive" id="editRoleIsActive" value="true" class="form-check-input" />
+                                <label class="form-check-label">啟用</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">確定更新</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="d-flex justify-content-center mt-4">
     <a asp-action="Index" class="btn btn-secondary px-4">
         <i class="bi bi-arrow-left"></i> 回用戶管理
     </a>
 </div>
+
+<script>
+    function openEditRoleModal(id, name, code, description, isActive, sortOrder) {
+        document.getElementById('editRoleId').value = id;
+        document.getElementById('editRoleName').value = name || '';
+        document.getElementById('editRoleCode').value = code || '';
+        document.getElementById('editRoleDescription').value = description || '';
+        document.getElementById('editRoleSortOrder').value = sortOrder || 0;
+        document.getElementById('editRoleIsActive').checked = isActive;
+        var modal = new bootstrap.Modal(document.getElementById('editRoleModal'));
+        modal.show();
+    }
+</script>
