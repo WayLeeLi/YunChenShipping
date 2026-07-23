@@ -210,6 +210,9 @@
 
         <!-- 明細主表格 (6行) -->
         <table class="main-table">
+            @{
+                var list = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
+            }
             <thead>
                 <tr>
                     <th style="width:36px">項次</th>
@@ -223,9 +226,6 @@
                 </tr>
             </thead>
             <tbody>
-                @{
-                    var list = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
-                }
                 @for (int i = 0; i < 6; i++)
                 {
                     var item = i < list.Count ? list[i] : null;
@@ -241,11 +241,11 @@
                 }
                 <tr>
                     <td>應稅</td>
-                    <td>@(ViewBag.TaxCategoryName?.ToString().Contains("應稅") == true ? "☑" : "")</td>
+                    <td></td>
                     <td>零税</td>
-                    <td>@(ViewBag.TaxCategoryName?.ToString().Contains("零税") == true ? "☑" : "")</td>
+                    <td></td>
                     <td>其他：</td>
-                    <td>@(ViewBag.TaxCategoryName?.ToString().Contains("應稅") != true && ViewBag.TaxCategoryName?.ToString().Contains("零税") != true && !string.IsNullOrEmpty(ViewBag.TaxCategoryName?.ToString()) ? "☑" : "")</td>
+                    <td></td>
                     <td rowspan="2">運送方式：@(Model.DeliveryMethod ?? "")</td>
                     <td rowspan="2" style="width:95px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;">
@@ -267,9 +267,9 @@
                 <tr>
                     <td colspan="8" style="border:none;padding-top:4mm;">
                         <div style="display:flex;justify-content:center;gap:22mm;font-size:10pt;">
-                            <span>主管：<span class="sign-line">@(Model.ManagerApproved ? Model.ManagerName : "")</span></span>
-                            <span>會計：<span class="sign-line">@(Model.AccountingApproved ? Model.AccountingName : "")</span></span>
-                            <span>承辦：<span class="sign-line">@(Model.HandlerApproved ? Model.Handler : "")</span></span>
+                            <span>主管：<span class="sign-line"></span></span>
+                            <span>會計：<span class="sign-line"></span></span>
+                            <span>承辦：<span class="sign-line"></span></span>
                         </div>
                     </td>
                 </tr>
