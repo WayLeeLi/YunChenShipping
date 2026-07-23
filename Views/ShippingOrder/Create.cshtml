@@ -75,7 +75,7 @@
                         <tr>
                             <th style="width: 50px;">項次</th>
                             <th style="width: 180px;">產品</th>
-                            <th>產品名稱</th>
+                            <th style="width: 200px;">產品名稱</th>
                             <th>PART NO</th>
                             <th style="width: 100px;">數量</th>
                             <th style="width: 100px;">單位</th>
@@ -96,7 +96,7 @@
                             <td><input type="text" name="PartNos" class="form-control form-control-sm" readonly /></td>
                             <td><input type="number" name="Quantities" class="form-control quantity-input" min="1" value="1" onchange="calculateRow(this)" style="width: 90px;" /></td>
                             <td><input type="text" name="Units" class="form-control" readonly style="width: 90px;" /></td>
-                            <td><input type="number" name="UnitPrices" class="form-control form-control-sm price-input" step="0.01" onchange="calculateRow(this)" /></td>
+                            <td><input type="number" name="UnitPrices" class="form-control form-control-sm price-input" step="0.01" value="0" onchange="calculateRow(this)" /></td>
                             <td><span class="subtotal-display fw-bold">0</span></td>
                             <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDetail(this)"><i class="bi bi-trash"></i></button></td>
                         </tr>
@@ -236,7 +236,7 @@
                 var currentValue = select.val();
                 select.find('option:gt(0)').remove();
                 products.forEach(function(product) {
-                    select.append(`<option value="${product.id}" data-name="${product.name}" data-unit="${product.unit}" data-price="${product.standardPrice}" data-partno="${product.partNo}" data-taxtype="${product.taxType}">${product.partNo} - ${product.name}</option>`);
+                    select.append(`<option value="${product.id}" data-name="${product.name}" data-unit="${product.unit}" data-price="${product.standardPrice}" data-partno="${product.partNo}" data-taxtype="${product.taxType}">${product.name}</option>`);
                 });
                 if (currentValue) {
                     select.val(currentValue);
@@ -254,7 +254,7 @@
                     <td><input type="text" name="PartNos" class="form-control" readonly /></td>
                     <td><input type="number" name="Quantities" class="form-control quantity-input" min="1" value="1" onchange="calculateRow(this)" style="width: 90px;" /></td>
                     <td><input type="text" name="Units" class="form-control" readonly style="width: 90px;" /></td>
-                    <td><input type="number" name="UnitPrices" class="form-control price-input" step="0.01" onchange="calculateRow(this)" /></td>
+                    <td><input type="number" name="UnitPrices" class="form-control price-input" step="0.01" value="0" onchange="calculateRow(this)" /></td>
                     <td><span class="subtotal-display fw-bold">0</span></td>
                     <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDetail(this)"><i class="bi bi-trash"></i></button></td>
                 </tr>
@@ -285,6 +285,7 @@
                 row.find('input[name="PartNos"]').val(option.data('partno'));
                 row.find('input[name="Units"]').val(option.data('unit'));
                 var price = parseFloat(option.data('price')) || 0;
+                // 始終設置單價，免費品項設為0
                 row.find('.price-input').val(price.toFixed(2));
                 calculateRow(select);
             }
@@ -295,7 +296,12 @@
             var quantity = parseInt(row.find('.quantity-input').val()) || 0;
             var price = parseFloat(row.find('.price-input').val()) || 0;
             var subtotal = quantity * price;
-            row.find('.subtotal-display').text(subtotal.toFixed(2));
+            // 免費品項（單價為0或空白），小計顯示為空
+            if (price === 0) {
+                row.find('.subtotal-display').text('');
+            } else {
+                row.find('.subtotal-display').text(subtotal.toFixed(2));
+            }
             calculateTotal();
         }
 
@@ -325,9 +331,16 @@
             var taxAmount = Math.round(subTotal * taxRate / 100);
             var total = subTotal + taxAmount;
 
-            $('#subTotal').text(Math.round(subTotal));
-            $('#taxAmount').text(Math.round(taxAmount));
-            $('#totalAmount').text(Math.round(total));
+            // 所有品項都是免費時，金額顯示為空
+            if (subTotal === 0) {
+                $('#subTotal').text('');
+                $('#taxAmount').text('');
+                $('#totalAmount').text('');
+            } else {
+                $('#subTotal').text(Math.round(subTotal));
+                $('#taxAmount').text(Math.round(taxAmount));
+                $('#totalAmount').text(Math.round(total));
+            }
         }
 
         $('#customerSelect').change(function() {

@@ -56,6 +56,7 @@ namespace YunChenShipping.Data
             // 產品配置
             builder.Entity<Product>(entity =>
             {
+                entity.Property(e => e.PartNo).IsRequired(false);
                 entity.HasIndex(e => e.PartNo);
                 entity.HasIndex(e => e.Name);
             });

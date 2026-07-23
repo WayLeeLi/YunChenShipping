@@ -74,7 +74,7 @@
                             <td>@item.Customer?.Name</td>
                             <td>@item.OrderDate.ToString("yyyy/MM/dd")</td>
                             <td>@(item.ReferenceNo ?? "-")</td>
-                            <td class="text-end fw-bold">@item.Total.ToString("N0")</td>
+                            <td class="text-end fw-bold">@(item.Total == 0 ? "" : item.Total.ToString("N0"))</td>
                             <td>@item.SortOrder</td>
                             <td>
                                 @switch (item.Status)

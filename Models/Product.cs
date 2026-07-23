@@ -14,10 +14,9 @@ namespace YunChenShipping.Models
         [Display(Name = "產品名稱及規格")]
         public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "PART NO 為必填")]
         [StringLength(50)]
         [Display(Name = "PART NO")]
-        public string PartNo { get; set; } = string.Empty;
+        public string? PartNo { get; set; }
 
         [Required(ErrorMessage = "單位為必填")]
         [StringLength(20)]

@@ -235,8 +235,8 @@
                         <td class="txt-center">@(item != null ? (item.PartNo ?? item.Product?.PartNo ?? "") : "")</td>
                         <td class="txt-center">@(item?.Quantity.ToString() ?? "")</td>
                         <td class="txt-center">@(item != null ? (item.Unit ?? item.Product?.Unit ?? "") : "")</td>
-                        <td class="txt-right">@(item != null ? item.UnitPrice.ToString("N2") : "")</td>
-                        <td class="txt-right">@(item != null ? item.SubTotal.ToString("N2") : "")</td>
+                        <td class="txt-right">@(item != null ? (item.UnitPrice == 0 ? "" : item.UnitPrice.ToString("N2")) : "")</td>
+                        <td class="txt-right">@(item != null ? (item.SubTotal == 0 ? "" : item.SubTotal.ToString("N2")) : "")</td>
                     </tr>
                 }
                 <tr>
@@ -250,11 +250,11 @@
                     <td rowspan="2" style="width:95px;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;">
                             <div style="border-bottom:1px solid #000;border-right:1px solid #000;padding:1mm;">銷售額</div>
-                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@Model.SubTotal.ToString("N0")</div>
+                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@(Model.SubTotal == 0 ? "" : Model.SubTotal.ToString("N0"))</div>
                             <div style="border-bottom:1px solid #000;border-right:1px solid #000;padding:1mm;">營業稅@(Model.TaxRate > 0 ? $"({Model.TaxRate}%)" : "")</div>
-                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@Model.TaxAmount.ToString("N0")</div>
+                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@(Model.TaxAmount == 0 ? "" : Model.TaxAmount.ToString("N0"))</div>
                             <div style="border-right:1px solid #000;padding:1mm;font-weight:bold;">總 計</div>
-                            <div style="padding:1mm;text-align:right;font-weight:bold;">@Model.Total.ToString("N0")</div>
+                            <div style="padding:1mm;text-align:right;font-weight:bold;">@(Model.Total == 0 ? "" : Model.Total.ToString("N0"))</div>
                         </div>
                     </td>
                 </tr>

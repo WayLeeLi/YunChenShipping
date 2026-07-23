@@ -149,19 +149,19 @@
                             <td>@(detail.PartNo ?? detail.Product?.PartNo)</td>
                             <td class="text-end">@detail.Quantity</td>
                             <td>@(detail.Unit ?? detail.Product?.Unit)</td>
-                            <td class="text-end">@detail.UnitPrice.ToString("N2")</td>
-                            <td class="text-end fw-bold">@detail.SubTotal.ToString("N2")</td>
+                            <td class="text-end">@(detail.UnitPrice == 0 ? "" : detail.UnitPrice.ToString("N2"))</td>
+                            <td class="text-end fw-bold">@(detail.SubTotal == 0 ? "" : detail.SubTotal.ToString("N2"))</td>
                         </tr>
                     }
                 </tbody>
                 <tfoot>
                     <tr class="table-light">
                         <td colspan="6" class="text-end"><strong>銷售額</strong></td>
-                        <td class="text-end"><strong>@Model.SubTotal.ToString("N0")</strong></td>
+                        <td class="text-end"><strong>@(Model.SubTotal == 0 ? "" : Model.SubTotal.ToString("N0"))</strong></td>
                     </tr>
                     <tr class="table-light">
                         <td colspan="6" class="text-end"><strong>營業稅</strong></td>
-                        <td class="text-end"><strong>@Model.TaxAmount.ToString("N0")</strong></td>
+                        <td class="text-end"><strong>@(Model.TaxAmount == 0 ? "" : Model.TaxAmount.ToString("N0"))</strong></td>
                     </tr>
                     @if (Model.OtherExpenses > 0)
                     {
@@ -172,7 +172,7 @@
                     }
                     <tr class="table-primary">
                         <td colspan="6" class="text-end"><strong class="fs-5">總計</strong></td>
-                        <td class="text-end"><strong class="fs-5">@Model.Total.ToString("N0")</strong></td>
+                        <td class="text-end"><strong class="fs-5">@(Model.Total == 0 ? "" : Model.Total.ToString("N0"))</strong></td>
                     </tr>
                 </tfoot>
             </table>

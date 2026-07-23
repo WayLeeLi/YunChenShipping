@@ -778,8 +778,11 @@ namespace YunChenShipping.Controllers
 
             foreach (var v in values)
             {
+                // 空字串或 null 視為 0（免費品項）
                 if (decimal.TryParse(v, out decimal parsed))
                     result.Add(parsed);
+                else
+                    result.Add(0); // 免費品項，單價為 0
             }
             return result;
         }

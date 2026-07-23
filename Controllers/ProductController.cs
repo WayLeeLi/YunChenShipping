@@ -29,7 +29,7 @@ namespace YunChenShipping.Controllers
             {
                 products = products.Where(p =>
                     p.Name.Contains(searchString) ||
-                    p.PartNo.Contains(searchString));
+                    (p.PartNo != null && p.PartNo.Contains(searchString)));
             }
 
             if (taxType.HasValue)
@@ -268,7 +268,7 @@ namespace YunChenShipping.Controllers
 
             if (!string.IsNullOrEmpty(term))
             {
-                query = query.Where(p => p.PartNo.Contains(term) || p.Name.Contains(term));
+                query = query.Where(p => (p.PartNo != null && p.PartNo.Contains(term)) || p.Name.Contains(term));
             }
 
             var products = await query
