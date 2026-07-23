@@ -208,6 +208,14 @@
             font-size: 9pt;
             line-height: 1.8;
         }
+
+        /* 套表模式：隱藏所有標籤，只顯示數據 */
+        .plate-mode .field-label { visibility: hidden; }
+        .plate-mode .header-left label,
+        .plate-mode .header-right label { visibility: hidden; width: 70px; }
+        .plate-mode .header-center { visibility: hidden; }
+        .plate-mode .main-table th { color: transparent; }
+        .plate-mode .footer-info { visibility: hidden; }
     </style>
     <script>
         var printMode = '@printMode';
@@ -315,19 +323,19 @@
                     }
                     <!-- 稅別 + 運送方式 -->
                     <tr>
-                        <td>應稅</td>
+                        <td><span class="field-label">應稅</span></td>
                         <td></td>
-                        <td>零稅</td>
+                        <td><span class="field-label">零稅</span></td>
                         <td></td>
-                        <td>其他：</td>
-                        <td colspan="2">運送方式：@(Model.DeliveryMethod ?? "")</td>
+                        <td><span class="field-label">其他：</span></td>
+                        <td colspan="2"><span class="field-label">運送方式：</span>@(Model.DeliveryMethod ?? "")</td>
                         <td rowspan="2" style="padding:0; vertical-align:top;">
                             <div style="display:grid; grid-template-columns:1fr 1fr;">
-                                <div style="border-bottom:1px solid #000; border-right:1px solid #000; padding:1mm;">銷售額</div>
+                                <div style="border-bottom:1px solid #000; border-right:1px solid #000; padding:1mm;"><span class="field-label">銷售額</span></div>
                                 <div style="border-bottom:1px solid #000; padding:1mm; text-align:right;">@(Model.SubTotal == 0 ? "" : Model.SubTotal.ToString("N0"))</div>
-                                <div style="border-bottom:1px solid #000; border-right:1px solid #000; padding:1mm;">營業稅@(Model.TaxRate > 0 ? $"({Model.TaxRate}%)" : "")</div>
+                                <div style="border-bottom:1px solid #000; border-right:1px solid #000; padding:1mm;"><span class="field-label">營業稅@(Model.TaxRate > 0 ? $"({Model.TaxRate}%)" : "")</span></div>
                                 <div style="border-bottom:1px solid #000; padding:1mm; text-align:right;">@(Model.TaxAmount == 0 ? "" : Model.TaxAmount.ToString("N0"))</div>
-                                <div style="border-right:1px solid #000; padding:1mm; font-weight:bold;">總 計</div>
+                                <div style="border-right:1px solid #000; padding:1mm; font-weight:bold;"><span class="field-label">總 計</span></div>
                                 <div style="padding:1mm; text-align:right; font-weight:bold;">@(Model.Total == 0 ? "" : Model.Total.ToString("N0"))</div>
                             </div>
                         </td>
@@ -335,7 +343,7 @@
                     <!-- 備註 -->
                     <tr>
                         <td colspan="7" style="min-height:14mm; vertical-align:top;">
-                            <strong>備　註：</strong><br>
+                            <span class="field-label"><strong>備　註：</strong></span><br>
                             @(Model.Remarks ?? "")
                         </td>
                     </tr>
@@ -345,9 +353,9 @@
             <!-- 表格下方：主管/會計/承辦 -->
             <div style="padding:2mm 6mm 0 6mm;">
                 <div style="display:flex; justify-content:center; gap:22mm; font-size:10pt;">
-                    <span>主管：<span class="sign-line"></span></span>
-                    <span>會計：<span class="sign-line"></span></span>
-                    <span>承辦：<span class="sign-line"></span></span>
+                    <span><span class="field-label">主管：</span><span class="sign-line"></span></span>
+                    <span><span class="field-label">會計：</span><span class="sign-line"></span></span>
+                    <span><span class="field-label">承辦：</span><span class="sign-line"></span></span>
                 </div>
             </div>
             <div class="footer-info">
