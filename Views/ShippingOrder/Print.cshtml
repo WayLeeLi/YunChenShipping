@@ -216,6 +216,16 @@
         .plate-mode .header-center { visibility: hidden; }
         .plate-mode .main-table th { color: transparent; }
         .plate-mode .footer-info { visibility: hidden; }
+
+        /* 套表模式：去掉所有邊框和線條 */
+        .plate-mode .header-left span.val,
+        .plate-mode .header-right span.val { border-bottom: none; }
+        .plate-mode .main-table,
+        .plate-mode .main-table th,
+        .plate-mode .main-table td { border: none !important; }
+        .plate-mode .main-table th { background-color: transparent; }
+        .plate-mode .sign-line { border-bottom: none; }
+        .plate-mode .main-table td > div[style*="grid"] div { border: none !important; }
     </style>
     <script>
         var printMode = '@printMode';
