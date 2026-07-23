@@ -331,9 +331,9 @@
     <a asp-action="Index" class="btn btn-secondary px-4">
         <i class="bi bi-arrow-left"></i> 回上一頁
     </a>
-    <a asp-action="Print" asp-route-id="@Model.Id" class="btn btn-info px-4" target="_blank">
+    <button type="button" class="btn btn-info px-4" onclick="$('#printModal').modal('show')">
         <i class="bi bi-printer"></i> 列印預覽
-    </a>
+    </button>
     <a asp-action="Copy" asp-route-id="@Model.Id" class="btn btn-outline-primary px-4">
         <i class="bi bi-copy"></i> 複製出貨單
     </a>
@@ -374,3 +374,48 @@
         </form>
     }
 </div>
+
+<!-- 列印選擇對話框 -->
+<div class="modal fade" id="printModal" tabindex="-1" aria-labelledby="printModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="printModalLabel">
+                    <i class="bi bi-printer"></i> 選擇列印方式
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-lg text-start" onclick="printBlank()">
+                        <i class="bi bi-file-earmark me-2"></i>
+                        <strong>空白紙張列印</strong>
+                        <br><small class="text-muted">使用一般印表機列印到空白紙張</small>
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-lg text-start" onclick="printPlate()">
+                        <i class="bi bi-printer me-2"></i>
+                        <strong>套表紙張列印</strong>
+                        <br><small class="text-muted">使用針式印表機列印到制式表格</small>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function printBlank() {
+            window.open('@Url.Action("Print", new { id = Model.Id, mode = "blank" })', '_blank');
+            $('#printModal').modal('hide');
+        }
+
+        function printPlate() {
+            window.open('@Url.Action("Print", new { id = Model.Id, mode = "plate" })', '_blank');
+            $('#printModal').modal('hide');
+        }
+    </script>
+}

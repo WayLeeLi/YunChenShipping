@@ -715,7 +715,7 @@ namespace YunChenShipping.Controllers
         }
 
         // GET: ShippingOrder/Print/5
-        public async Task<IActionResult> Print(int? id)
+        public async Task<IActionResult> Print(int? id, string mode = "blank")
         {
             if (id == null)
             {
@@ -740,6 +740,10 @@ namespace YunChenShipping.Controllers
             ViewBag.CompanyPhone = settings.FirstOrDefault(s => s.SettingKey == "CompanyPhone")?.SettingValue ?? "";
             ViewBag.CompanyFax = settings.FirstOrDefault(s => s.SettingKey == "CompanyFax")?.SettingValue ?? "";
 
+            // 讀取列印邊距設定
+            ViewBag.PrintMarginTop = settings.FirstOrDefault(s => s.SettingKey == "PrintMarginTop")?.SettingValue ?? "10";
+            ViewBag.PrintMarginLeft = settings.FirstOrDefault(s => s.SettingKey == "PrintMarginLeft")?.SettingValue ?? "10";
+
             // 讀取稅目名稱
             if (shippingOrder.TaxCategoryId > 0)
             {
@@ -750,6 +754,9 @@ namespace YunChenShipping.Controllers
             {
                 ViewBag.TaxCategoryName = "";
             }
+
+            // 傳遞列印模式
+            ViewBag.PrintMode = mode;
 
             return View(shippingOrder);
         }
