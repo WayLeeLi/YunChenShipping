@@ -125,7 +125,7 @@
         .paper.plate-mode {
             padding: 0;
             width: 215mm;
-            height: 138mm;
+            min-height: 138mm;
             overflow: hidden;
             position: relative;
             background: url('/images/form-bg.png') no-repeat;
@@ -139,15 +139,8 @@
             font-size: 9pt;
         }
 
-        /* ========== 列印頁面設定【已修正寬高順序】 ========== */
-        @if (printMode == "plate")
-        {
-            <text>@@page { size: 215mm 138mm; margin: 0; orientation: portrait; }</text>
-        }
-        else
-        {
-            <text>@@page { size: 215mm auto; margin: 0; orientation: portrait; }</text>
-        }
+        /* ========== 列印頁面設定 ========== */
+        @@page { size: 215mm auto; margin: 0; orientation: portrait; }
     </style>
     <script>
         var printMode = '@printMode';
@@ -159,7 +152,6 @@
     body { background: #fff; padding: 0; }
     .paper { page-break-inside: avoid; }
     .paper.plate-mode { border: none !important; }
-    /* 強制鎖定橫向文字，禁止瀏覽器自動旋轉 */
     html, body, .paper {
         transform: rotate(0deg) !important;
         writing-mode: horizontal-tb !important;
@@ -190,31 +182,31 @@
         var list = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
         <div class="paper plate-mode">
             <!-- 左欄：客戶資訊 -->
-            <div class="field" style="left:calc(42mm + var(--offset-left)); top:calc(10mm + var(--offset-top));">@Model.Customer?.Name</div>
-            <div class="field" style="left:calc(42mm + var(--offset-left)); top:calc(16mm + var(--offset-top));">@(Model.Customer?.Phone ?? "")</div>
-            <div class="field" style="left:calc(42mm + var(--offset-left)); top:calc(20mm + var(--offset-top));">@(Model.Customer?.ContactPerson ?? Model.Handler ?? "")</div>
-            <div class="field" style="left:calc(42mm + var(--offset-left)); top:calc(26mm + var(--offset-top));">@Model.DeliveryAddress</div>
+            <div class="field" style="left:calc(39mm + var(--offset-left)); top:calc(8mm + var(--offset-top));">@Model.Customer?.Name</div>
+            <div class="field" style="left:calc(39mm + var(--offset-left)); top:calc(14mm + var(--offset-top));">@(Model.Customer?.Phone ?? "")</div>
+            <div class="field" style="left:calc(39mm + var(--offset-left)); top:calc(20mm + var(--offset-top));">@(Model.Customer?.ContactPerson ?? Model.Handler ?? "")</div>
+            <div class="field" style="left:calc(39mm + var(--offset-left)); top:calc(26mm + var(--offset-top));">@Model.DeliveryAddress</div>
 
             <!-- 右欄：單號資訊 -->
-            <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(10mm + var(--offset-top));">@Model.OrderNo</div>
+            <div class="field" style="left:calc(166mm + var(--offset-left)); top:calc(7mm + var(--offset-top));">@Model.OrderNo</div>
             <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(16mm + var(--offset-top));">@(Model.InvoiceNo ?? "")</div>
-            <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(20mm + var(--offset-top));">@Model.OrderDate.ToString("yyyy/MM/dd")</div>
-            <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(26mm + var(--offset-top));">@(Model.ReferenceNo ?? "")</div>
-            <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(30mm + var(--offset-top));">@(Model.ProjectNo ?? "")</div>
+            <div class="field" style="left:calc(166mm + var(--offset-left)); top:calc(18mm + var(--offset-top));">@Model.OrderDate.ToString("yyyy/MM/dd")</div>
+            <div class="field" style="left:calc(170mm + var(--offset-left)); top:calc(23mm + var(--offset-top));">@(Model.ReferenceNo ?? "")</div>
+            <div class="field" style="left:calc(166mm + var(--offset-left)); top:calc(30mm + var(--offset-top));">@(Model.ProjectNo ?? "")</div>
             <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(36mm + var(--offset-top));">@Html.DisplayFor(model => model.PaymentMethod)</div>
 
             <!-- 明細行 -->
             @for (int i = 0; i < 6; i++)
             {
                 var item = i < list.Count ? list[i] : null;
-                var topPos = 51 + (i * 7);
-                <div class="field" style="left:calc(20mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:center;">@(item?.LineNo.ToString() ?? "")</div>
+                var topPos = 53 + (i * 7);
+                <div class="field" style="left:calc(23mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:center;">@(item?.LineNo.ToString() ?? "")</div>
                 <div class="field" style="left:calc(35mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:40mm; overflow:hidden;">@(item != null ? (item.ProductName ?? item.Product?.Name ?? "") : "")</div>
                 <div class="field" style="left:calc(68mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:25mm;">@(item != null ? (item.PartNo ?? item.Product?.PartNo ?? "") : "")</div>
                 <div class="field" style="left:calc(85mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:10mm; text-align:center;">@(item?.Quantity.ToString() ?? "")</div>
-                <div class="field" style="left:calc(97mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:10mm; text-align:center;">@(item != null ? (item.Unit ?? item.Product?.Unit ?? "") : "")</div>
-                <div class="field" style="left:calc(109mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.UnitPrice == 0 ? "" : item.UnitPrice.ToString("N0")) : "")</div>
-                <div class="field" style="left:calc(122mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.SubTotal == 0 ? "" : item.SubTotal.ToString("N0")) : "")</div>
+                <div class="field" style="left:calc(98mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:10mm; text-align:center;">@(item != null ? (item.Unit ?? item.Product?.Unit ?? "") : "")</div>
+                <div class="field" style="left:calc(111mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.UnitPrice == 0 ? "" : item.UnitPrice.ToString("N0")) : "")</div>
+                <div class="field" style="left:calc(125mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.SubTotal == 0 ? "" : item.SubTotal.ToString("N0")) : "")</div>
             }
 
             <!-- 運送方式 -->
@@ -224,9 +216,9 @@
             <div class="field" style="left:calc(28mm + var(--offset-left)); top:calc(111mm + var(--offset-top)); width:80mm; white-space:normal;">@(Model.Remarks ?? "")</div>
 
             <!-- 銷售額/營業稅/總計 -->
-            <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(98mm + var(--offset-top)); text-align:right; width:11mm;">@(Model.SubTotal == 0 ? "" : Model.SubTotal.ToString("N0"))</div>
-            <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(105mm + var(--offset-top)); text-align:right; width:11mm;">@(Model.TaxAmount == 0 ? "" : Model.TaxAmount.ToString("N0"))</div>
-            <div class="field" style="left:calc(162mm + var(--offset-left)); top:calc(112mm + var(--offset-top)); text-align:right; width:11mm; font-weight:bold;">@(Model.Total == 0 ? "" : Model.Total.ToString("N0"))</div>
+            <div class="field" style="left:calc(171mm + var(--offset-left)); top:calc(104mm + var(--offset-top)); text-align:right; width:11mm;">@(Model.SubTotal == 0 ? "" : Model.SubTotal.ToString("N0"))</div>
+            <div class="field" style="left:calc(171mm + var(--offset-left)); top:calc(111mm + var(--offset-top)); text-align:right; width:11mm;">@(Model.TaxAmount == 0 ? "" : Model.TaxAmount.ToString("N0"))</div>
+            <div class="field" style="left:calc(171mm + var(--offset-left)); top:calc(118mm + var(--offset-top)); text-align:right; width:11mm; font-weight:bold;">@(Model.Total == 0 ? "" : Model.Total.ToString("N0"))</div>
         </div>
     }
     else
