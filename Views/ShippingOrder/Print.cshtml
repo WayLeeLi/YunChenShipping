@@ -207,13 +207,13 @@
             @for (int i = 0; i < 6; i++)
             {
                 var item = i < list.Count ? list[i] : null;
-                var topPos = 51 + (i * 9);
+                var topPos = 51 + (i * 7);
                 <div class="field" style="left:calc(20mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:center;">@(item?.LineNo.ToString() ?? "")</div>
                 <div class="field" style="left:calc(35mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:40mm; overflow:hidden;">@(item != null ? (item.ProductName ?? item.Product?.Name ?? "") : "")</div>
                 <div class="field" style="left:calc(68mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:25mm;">@(item != null ? (item.PartNo ?? item.Product?.PartNo ?? "") : "")</div>
                 <div class="field" style="left:calc(85mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:10mm; text-align:center;">@(item?.Quantity.ToString() ?? "")</div>
                 <div class="field" style="left:calc(97mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:10mm; text-align:center;">@(item != null ? (item.Unit ?? item.Product?.Unit ?? "") : "")</div>
-                <div class="field" style="left:calc(107mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.UnitPrice == 0 ? "" : item.UnitPrice.ToString("N0")) : "")</div>
+                <div class="field" style="left:calc(109mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.UnitPrice == 0 ? "" : item.UnitPrice.ToString("N0")) : "")</div>
                 <div class="field" style="left:calc(122mm + var(--offset-left)); top:calc(@(topPos)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.SubTotal == 0 ? "" : item.SubTotal.ToString("N0")) : "")</div>
             }
 
