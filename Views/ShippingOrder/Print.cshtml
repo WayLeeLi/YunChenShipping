@@ -188,12 +188,12 @@
             <div class="field" style="left:calc(30mm + var(--offset-left)); top:calc(25mm + var(--offset-top));">@Model.DeliveryAddress</div>
 
             <!-- 右欄：單號資訊 -->
-            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(7mm + var(--offset-top));">@Model.OrderNo</div>
-            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(13mm + var(--offset-top));">@(Model.InvoiceNo ?? "")</div>
-            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(20mm + var(--offset-top));">@Model.OrderDate.ToString("yyyy/MM/dd")</div>
-            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(25mm + var(--offset-top));">@(Model.ReferenceNo ?? "")</div>
-            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(30mm + var(--offset-top));">@(Model.ProjectNo ?? "")</div>
-            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(36mm + var(--offset-top));">@Html.DisplayFor(model => model.PaymentMethod)</div>
+            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(6mm + var(--offset-top));">@Model.OrderNo</div>
+            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(11.5mm + var(--offset-top));">@(Model.InvoiceNo ?? "")</div>
+            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(17mm + var(--offset-top));">@Model.OrderDate.ToString("yyyy/MM/dd")</div>
+            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(22.5mm + var(--offset-top));">@(Model.ReferenceNo ?? "")</div>
+            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(28mm + var(--offset-top));">@(Model.ProjectNo ?? "")</div>
+            <div class="field" style="left:calc(173mm + var(--offset-left)); top:calc(33.5mm + var(--offset-top));">@Html.DisplayFor(model => model.PaymentMethod)</div>
 
             <!-- 明細行 -->
             @for (int i = 0; i < 6; i++)
