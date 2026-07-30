@@ -158,6 +158,14 @@
     }
 }
 `;
+            // 空白紙模式列印時縮放 95%
+            if (printMode !== 'plate') {
+                printCss += `
+@@media print {
+    body { transform: scale(0.95) !important; transform-origin: top center; }
+}
+`;
+            }
             styleSheet.textContent = printCss;
             document.head.appendChild(styleSheet);
         });
