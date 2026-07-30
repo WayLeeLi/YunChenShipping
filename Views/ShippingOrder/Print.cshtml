@@ -38,20 +38,22 @@
         /* ========== 空白紙模式樣式 ========== */
         .paper {
             width: 215mm;
-            min-height: 138mm;
+            min-height: 139mm;
+            max-height: 139mm;
             margin: 0 auto;
             background: #fff;
-            padding: 4mm 6mm;
+            padding: 3mm 6mm;
+            overflow: hidden;
         }
 
         .header-wrap {
             display: grid;
             grid-template-columns: 28% 44% 28%;
-            margin-bottom: 3mm;
+            margin-bottom: 2mm;
         }
 
         .header-left p, .header-right p {
-            line-height: 1.8;
+            line-height: 1.6;
             display: flex;
         }
 
@@ -83,7 +85,7 @@
         .header-center .doc-title {
             font-size: 24pt;
             letter-spacing: 8px;
-            margin-top: 2mm;
+            margin-top: 1mm;
             text-decoration: underline;
         }
 
@@ -96,8 +98,8 @@
         .main-table th,
         .main-table td {
             border: 1px solid #000;
-            padding: 1mm;
-            height: 7mm;
+            padding: 0.5mm 1mm;
+            height: 6mm;
             vertical-align: middle;
         }
 
@@ -305,13 +307,13 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="6" style="min-height:12mm;">
+                        <td colspan="6" style="min-height:8mm;">
                             <strong>備　註：</strong><br>
                             @(Model.Remarks ?? "")
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="8" style="border:none;padding-top:4mm;">
+                        <td colspan="8" style="border:none;padding-top:2mm;">
                             <div style="display:flex;justify-content:center;gap:22mm;font-size:10pt;">
                                 <span>主管：<span class="sign-line"></span></span>
                                 <span>會計：<span class="sign-line"></span></span>
@@ -320,7 +322,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="8" style="border:none;text-align:center;padding-top:1.5mm;font-size:9pt;">
+                        <td colspan="8" style="border:none;text-align:center;padding-top:1mm;font-size:9pt;">
                             第一聯：存根聯(白)　第二聯：會計聯(藍)　第三聯：客戶聯(黃)
                         </td>
                     </tr>
