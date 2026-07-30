@@ -91,7 +91,9 @@ namespace YunChenShipping.Models
         [Display(Name = "支票")]
         Check = 3,
         [Display(Name = "其他")]
-        Other = 4
+        Other = 4,
+        [Display(Name = "零用金")]
+        PettyCash = 5
     }
 
     public class CustomerContact
