@@ -240,6 +240,7 @@
     {
         var listBlank = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
         <div class="paper">
+            <div style="height:18mm;"></div>
             <div class="header-wrap">
                 <div class="header-left">
                     <p><label>客戶名稱:</label><span class="val">@Model.Customer?.Name</span></p>
@@ -299,7 +300,7 @@
                         <td></td>
                         <td>其他：</td>
                         <td></td>
-                        <td rowspan="2">運送方式：@(Model.DeliveryMethod ?? "")</td>
+                        <td rowspan="2">運送方式：<br>@(Model.DeliveryMethod ?? "")</td>
                         <td rowspan="2" style="width:95px;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;">
                                 <div style="border-bottom:1px solid #000;border-right:1px solid #000;padding:1mm;">銷售額</div>
