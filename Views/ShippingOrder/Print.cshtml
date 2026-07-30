@@ -9,6 +9,9 @@
 <html lang="zh-TW">
 <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>列印出貨單 - @Model.OrderNo</title>
     <style>
         * {
@@ -43,6 +46,7 @@
             margin: 0 auto;
             background: #fff;
             padding: 3mm 6mm;
+            transform: translateX(-10mm);
             overflow: hidden;
         }
 
@@ -160,11 +164,12 @@
     }
 }
 `;
-            // 空白紙模式列印時縮放 95%
+            // 空白紙模式列印時縮放 95% 並左移10mm
             if (printMode !== 'plate') {
                 printCss += `
 @@media print {
     body { transform: scale(0.95) !important; transform-origin: top center; }
+    .paper { transform: translateX(-20mm) !important; }
 }
 `;
             }
