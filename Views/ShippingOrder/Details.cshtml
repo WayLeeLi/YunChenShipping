@@ -409,12 +409,12 @@
 @section Scripts {
     <script>
         function printBlank() {
-            window.open('@Url.Action("Print", new { id = Model.Id, mode = "blank" })', '_blank');
+            window.open('@Url.Action("Print", new { id = Model.Id, mode = "blank" })&_t=' + Date.now(), '_blank');
             $('#printModal').modal('hide');
         }
 
         function printPlate() {
-            window.open('@Url.Action("Print", new { id = Model.Id, mode = "plate" })', '_blank');
+            window.open('@Url.Action("Print", new { id = Model.Id, mode = "plate" })&_t=' + Date.now(), '_blank');
             $('#printModal').modal('hide');
         }
     </script>
