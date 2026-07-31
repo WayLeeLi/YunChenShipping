@@ -1,0 +1,134 @@
+@model YunChenShipping.Models.ShippingOrder
+@{
+    ViewData["Title"] = "列印出貨單";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>列印出貨單 - @Model.OrderNo</title>
+    <style>
+        * {
+            font-family: "標楷體", "DFKai-SB", "SimSun", serif;
+            font-size: 9pt;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f0f0;
+            padding: 10px;
+        }
+
+        .print-buttons {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .print-buttons button {
+            margin: 0 10px;
+            padding: 6px 22px;
+            font-size: 13pt;
+            cursor: pointer;
+        }
+
+        /* ========== 套表模式【背景圖對齊】 ========== */
+        :root {
+            --offset-left: 0mm;
+            --offset-top: 0mm;
+        }
+
+        .paper {
+            width: 215mm;
+            min-height: 138mm;
+            overflow: hidden;
+            position: relative;
+            background: url('/images/form-bg.png') no-repeat;
+            background-size: 215mm 138mm;
+            border: 1px dashed #aaa;
+        }
+
+        .paper .field {
+            position: absolute;
+            white-space: nowrap;
+            font-size: 9pt;
+        }
+
+        /* ========== 列印頁面設定 ========== */
+        @@page { size: 215mm auto; margin: 0; orientation: portrait; }
+    </style>
+    <script>
+        window.addEventListener('load', function () {
+            const styleSheet = document.createElement("style");
+            styleSheet.textContent = `
+@@media print {
+    .print-buttons { display: none !important; }
+    body { background: #fff; padding: 0; }
+    .paper { page-break-inside: avoid; border: none !important; }
+    html, body, .paper {
+        transform: rotate(0deg) !important;
+        writing-mode: horizontal-tb !important;
+    }
+}
+`;
+            document.head.appendChild(styleSheet);
+        });
+    </script>
+</head>
+<body>
+    <div class="print-buttons">
+        <span class="badge bg-success me-2"><i class="bi bi-printer"></i> 套表模式 - 針式印表機 (215mm x 138mm)</span>
+        <button onclick="window.print()">列印</button>
+        <button onclick="window.close()">關閉</button>
+    </div>
+
+    @{
+        var list = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
+    }
+    <div class="paper">
+        <!-- 左欄：客戶資訊 -->
+        <div class="field" style="left:calc(13mm + var(--offset-left)); top:calc(7mm + var(--offset-top));">@Model.Customer?.Name</div>
+        <div class="field" style="left:calc(13mm + var(--offset-left)); top:calc(13mm + var(--offset-top));">@(Model.Customer?.Phone ?? "")</div>
+        <div class="field" style="left:calc(13mm + var(--offset-left)); top:calc(19mm + var(--offset-top));">@(Model.Customer?.ContactPerson ?? Model.Handler ?? "")</div>
+        <div class="field" style="left:calc(13mm + var(--offset-left)); top:calc(25mm + var(--offset-top));">@Model.DeliveryAddress</div>
+
+        <!-- 右欄：單號資訊 -->
+        <div class="field" style="left:calc(156mm + var(--offset-left)); top:calc(6mm + var(--offset-top));">@Model.OrderNo</div>
+        <div class="field" style="left:calc(156mm + var(--offset-left)); top:calc(11.5mm + var(--offset-top));">@(Model.InvoiceNo ?? "")</div>
+        <div class="field" style="left:calc(156mm + var(--offset-left)); top:calc(17mm + var(--offset-top));">@Model.OrderDate.ToString("yyyy/MM/dd")</div>
+        <div class="field" style="left:calc(156mm + var(--offset-left)); top:calc(22.5mm + var(--offset-top));">@(Model.ReferenceNo ?? "")</div>
+        <div class="field" style="left:calc(156mm + var(--offset-left)); top:calc(28mm + var(--offset-top));">@(Model.ProjectNo ?? "")</div>
+        <div class="field" style="left:calc(156mm + var(--offset-left)); top:calc(33.5mm + var(--offset-top));">@Html.DisplayFor(model => model.PaymentMethod)</div>
+
+        <!-- 明細行 -->
+        @for (int i = 0; i < 6; i++)
+        {
+            var item = i < list.Count ? list[i] : null;
+            var topPos = 53 + (i * 7);
+            <div class="field" style="left:calc(-5.5mm + var(--offset-left)); top:calc(@(topPos - 2)mm + var(--offset-top)); width:12mm; text-align:center;">@(item?.LineNo.ToString() ?? "")</div>
+            <div class="field" style="left:calc(5mm + var(--offset-left)); top:calc(@(topPos - 2)mm + var(--offset-top)); width:40mm; overflow:hidden;">@(item != null ? (item.ProductName ?? item.Product?.Name ?? "") : "")</div>
+            <div class="field" style="left:calc(49mm + var(--offset-left)); top:calc(@(topPos - 2)mm + var(--offset-top)); width:25mm;">@(item != null ? (item.PartNo ?? item.Product?.PartNo ?? "") : "")</div>
+            <div class="field" style="left:calc(68mm + var(--offset-left)); top:calc(@(topPos - 2)mm + var(--offset-top)); width:10mm; text-align:center;">@(item?.Quantity.ToString() ?? "")</div>
+            <div class="field" style="left:calc(81mm + var(--offset-left)); top:calc(@(topPos - 2)mm + var(--offset-top)); width:10mm; text-align:center;">@(item != null ? (item.Unit ?? item.Product?.Unit ?? "") : "")</div>
+            <div class="field" style="left:calc(94mm + var(--offset-left)); top:calc(@(topPos - 2)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.UnitPrice == 0 ? "" : item.UnitPrice.ToString("N0")) : "")</div>
+            <div class="field" style="left:calc(111mm + var(--offset-left)); top:calc(@(topPos - 2)mm + var(--offset-top)); width:12mm; text-align:right;">@(item != null ? (item.SubTotal == 0 ? "" : item.SubTotal.ToString("N0")) : "")</div>
+        }
+
+        <!-- 運送方式 -->
+        <div class="field" style="left:calc(101mm + var(--offset-left)); top:calc(105mm + var(--offset-top));">@(Model.DeliveryMethod ?? "")</div>
+
+        <!-- 備註 -->
+        <div class="field" style="left:calc(11mm + var(--offset-left)); top:calc(111mm + var(--offset-top)); width:80mm; white-space:normal;">@(Model.Remarks ?? "")</div>
+
+        <!-- 銷售額/營業稅/總計 -->
+        <div class="field" style="left:calc(154mm + var(--offset-left)); top:calc(103mm + var(--offset-top)); text-align:right; width:11mm;">@(Model.SubTotal == 0 ? "" : Model.SubTotal.ToString("N0"))</div>
+        <div class="field" style="left:calc(154mm + var(--offset-left)); top:calc(110mm + var(--offset-top)); text-align:right; width:11mm;">@(Model.TaxAmount == 0 ? "" : Model.TaxAmount.ToString("N0"))</div>
+        <div class="field" style="left:calc(154mm + var(--offset-left)); top:calc(117mm + var(--offset-top)); text-align:right; width:11mm; font-weight:bold;">@(Model.Total == 0 ? "" : Model.Total.ToString("N0"))</div>
+    </div>
+</body>
+</html>

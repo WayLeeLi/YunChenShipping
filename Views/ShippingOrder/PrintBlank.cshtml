@@ -1,0 +1,254 @@
+@model YunChenShipping.Models.ShippingOrder
+@{
+    ViewData["Title"] = "列印出貨單";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>列印出貨單 - @Model.OrderNo</title>
+    <style>
+        * {
+            font-family: "標楷體", "DFKai-SB", "SimSun", serif;
+            font-size: 9pt;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f0f0;
+            padding: 10px;
+        }
+
+        .print-buttons {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .print-buttons button {
+            margin: 0 10px;
+            padding: 6px 22px;
+            font-size: 13pt;
+            cursor: pointer;
+        }
+
+        /* ========== 空白紙模式樣式 ========== */
+        .paper {
+            width: 215mm;
+            min-height: 139mm;
+            max-height: 139mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 3mm 6mm;
+            transform: translateX(-10mm);
+            overflow: hidden;
+        }
+
+        .header-wrap {
+            display: grid;
+            grid-template-columns: 28% 44% 28%;
+            margin-bottom: 2mm;
+        }
+
+        .header-left p, .header-right p {
+            line-height: 1.6;
+            display: flex;
+        }
+
+        .header-left label, .header-right label {
+            width: 70px;
+            flex-shrink: 0;
+        }
+
+        .header-left span.val, .header-right span.val {
+            border-bottom: 1px solid #000;
+            flex: 1;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .header-center .company-name {
+            font-size: 20pt;
+            font-weight: normal;
+            letter-spacing: 4px;
+        }
+
+        .header-center .info-text {
+            font-size: 9pt;
+            line-height: 1.5;
+        }
+
+        .header-center .doc-title {
+            font-size: 24pt;
+            letter-spacing: 8px;
+            margin-top: 1mm;
+            text-decoration: underline;
+        }
+
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #000;
+        }
+
+        .main-table th,
+        .main-table td {
+            border: 1px solid #000;
+            padding: 0.5mm 1mm;
+            height: 6mm;
+            vertical-align: middle;
+        }
+
+        .main-table th {
+            background-color: #f8f8f8;
+        }
+
+        .txt-left { text-align: left; }
+        .txt-right { text-align: right; }
+        .txt-center { text-align: center; }
+
+        .sign-line {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        /* ========== 列印頁面設定 ========== */
+        @@page { size: 215mm auto; margin: 0; orientation: portrait; }
+    </style>
+    <script>
+        window.addEventListener('load', function () {
+            const styleSheet = document.createElement("style");
+            styleSheet.textContent = `
+@@media print {
+    .print-buttons { display: none !important; }
+    body { background: #fff; padding: 0; }
+    .paper { page-break-inside: avoid; }
+    html, body, .paper {
+        transform: rotate(0deg) !important;
+        writing-mode: horizontal-tb !important;
+    }
+    body { transform: scale(0.95) !important; transform-origin: top center; }
+    .paper { transform: translateX(-20mm) !important; }
+}
+`;
+            document.head.appendChild(styleSheet);
+        });
+    </script>
+</head>
+<body>
+    <div class="print-buttons">
+        <span class="badge bg-primary me-2"><i class="bi bi-file-earmark"></i> 空白紙張模式</span>
+        <button onclick="window.print()">列印</button>
+        <button onclick="window.close()">關閉</button>
+    </div>
+
+    @{
+        var list = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
+    }
+    <div class="paper">
+        <div style="height:18mm;"></div>
+        <div class="header-wrap">
+            <div class="header-left">
+                <p><label>客戶名稱:</label><span class="val">@Model.Customer?.Name</span></p>
+                <p><label>電　　話:</label><span class="val">@(Model.Customer?.Phone ?? "")</span></p>
+                <p><label>聯 絡 人:</label><span class="val">@(Model.Customer?.ContactPerson ?? Model.Handler ?? "")</span></p>
+                <p><label>交貨地址:</label><span class="val">@Model.DeliveryAddress</span></p>
+            </div>
+            <div class="header-center">
+                <div class="company-name">允晨科技有限公司</div>
+                <div class="info-text">
+                    @(ViewBag.CompanyAddress as string ?? "300048新北市北區竹光路363號")<br>
+                    TEL：@(ViewBag.CompanyPhone as string ?? "03-5427772")　FAX：@(ViewBag.CompanyFax as string ?? "03-5427758")
+                </div>
+                <div class="doc-title">出 貨 單</div>
+            </div>
+            <div class="header-right">
+                <p><label>出貨單號:</label><span class="val">@Model.OrderNo</span></p>
+                <p><label>發票號碼:</label><span class="val">@(Model.InvoiceNo ?? "")</span></p>
+                <p><label>出貨日期:</label><span class="val">@Model.OrderDate.ToString("yyyy/MM/dd")</span></p>
+                <p><label>訂單號碼:</label><span class="val">@(Model.ReferenceNo ?? "")</span></p>
+                <p><label>案　　號:</label><span class="val">@(Model.ProjectNo ?? "")</span></p>
+                <p><label>付款方式:</label><span class="val">@Html.DisplayFor(model => model.PaymentMethod)</span></p>
+            </div>
+        </div>
+
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width:36px">項次</th>
+                    <th style="width:200px">產品名稱及規格</th>
+                    <th style="width:72px">PART NO</th>
+                    <th style="width:46px">數量</th>
+                    <th style="width:38px">單位</th>
+                    <th style="width:62px">單價</th>
+                    <th style="width:66px">總價</th>
+                    <th style="width:95px;" rowspan="11">客 戶 簽 名</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 6; i++)
+                {
+                    var item = i < list.Count ? list[i] : null;
+                    <tr>
+                        <td class="txt-center">@(item?.LineNo.ToString() ?? "")</td>
+                        <td class="txt-left">@(item != null ? (item.ProductName ?? item.Product?.Name ?? "") : "")</td>
+                        <td class="txt-center">@(item != null ? (item.PartNo ?? item.Product?.PartNo ?? "") : "")</td>
+                        <td class="txt-center">@(item?.Quantity.ToString() ?? "")</td>
+                        <td class="txt-center">@(item != null ? (item.Unit ?? item.Product?.Unit ?? "") : "")</td>
+                        <td class="txt-right">@(item != null ? (item.UnitPrice == 0 ? "" : item.UnitPrice.ToString("N2")) : "")</td>
+                        <td class="txt-right">@(item != null ? (item.SubTotal == 0 ? "" : item.SubTotal.ToString("N2")) : "")</td>
+                    </tr>
+                }
+                <tr>
+                    <td>應稅</td>
+                    <td></td>
+                    <td>零税</td>
+                    <td></td>
+                    <td>其他：</td>
+                    <td></td>
+                    <td rowspan="2">運送方式：<br>@(Model.DeliveryMethod ?? "")</td>
+                    <td rowspan="2" style="width:95px;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;">
+                            <div style="border-bottom:1px solid #000;border-right:1px solid #000;padding:1mm;">銷售額</div>
+                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@(Model.SubTotal == 0 ? "" : Model.SubTotal.ToString("N0"))</div>
+                            <div style="border-bottom:1px solid #000;border-right:1px solid #000;padding:1mm;">營業稅@(Model.TaxRate > 0 ? $"({Model.TaxRate}%)" : "")</div>
+                            <div style="border-bottom:1px solid #000;padding:1mm;text-align:right;">@(Model.TaxAmount == 0 ? "" : Model.TaxAmount.ToString("N0"))</div>
+                            <div style="border-right:1px solid #000;padding:1mm;font-weight:bold;">總 計</div>
+                            <div style="padding:1mm;text-align:right;font-weight:bold;">@(Model.Total == 0 ? "" : Model.Total.ToString("N0"))</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="min-height:8mm;">
+                        <strong>備　註：</strong><br>
+                        @(Model.Remarks ?? "")
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="border:none;padding-top:2mm;">
+                        <div style="display:flex;justify-content:center;gap:22mm;font-size:10pt;">
+                            <span>主管：<span class="sign-line"></span></span>
+                            <span>會計：<span class="sign-line"></span></span>
+                            <span>承辦：<span class="sign-line"></span></span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="border:none;text-align:center;padding-top:1mm;font-size:9pt;">
+                        第一聯：存根聯(白)　第二聯：會計聯(藍)　第三聯：客戶聯(黃)
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

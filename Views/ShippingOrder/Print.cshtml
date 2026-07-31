@@ -40,13 +40,12 @@
 
         /* ========== 空白紙模式樣式 ========== */
         .paper {
-            width: 215mm;
+            width: 207mm;
             min-height: 139mm;
             max-height: 139mm;
             margin: 0 auto;
             background: #fff;
-            padding: 3mm 6mm;
-            transform: translateX(-10mm);
+            padding: 3mm 3mm;
             overflow: hidden;
         }
 
@@ -164,12 +163,11 @@
     }
 }
 `;
-            // 空白紙模式列印時縮放 95% 並左移10mm
+            // 空白紙模式列印時
             if (printMode !== 'plate') {
                 printCss += `
 @@media print {
-    body { transform: scale(0.95) !important; transform-origin: top center; }
-    .paper { transform: translateX(-20mm) !important; }
+    .paper { margin-left: 2mm; margin-right: auto; }
 }
 `;
             }
