@@ -16,7 +16,7 @@
     <style>
         * {
             font-family: "標楷體", "DFKai-SB", "SimSun", serif;
-            font-size: 9pt;
+            font-size: 14px;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -81,7 +81,7 @@
         }
 
         .header-center .info-text {
-            font-size: 9pt;
+            font-size: 14px;
             line-height: 1.5;
         }
 
@@ -141,7 +141,7 @@
         .plate-mode .field {
             position: absolute;
             white-space: nowrap;
-            font-size: 9pt;
+            font-size: 14px;
         }
 
         /* ========== 列印頁面設定 ========== */
@@ -238,7 +238,7 @@
     {
         var listBlank = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
         <div class="paper">
-            <div style="height:18mm;"></div>
+            <div style="height:7mm;"></div>
             <div class="header-wrap">
                 <div class="header-left">
                     <p><label>客戶名稱:</label><span class="val">@Model.Customer?.Name</span></p>
