@@ -65,6 +65,7 @@ namespace YunChenShipping.Controllers
 
         // API: 取得單位列表
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUnits()
         {
             var units = await _context.SystemSettings

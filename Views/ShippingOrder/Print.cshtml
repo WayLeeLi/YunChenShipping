@@ -236,7 +236,7 @@
     }
     else
     {
-        var listBlank = Model.Details.OrderBy(d => d.LineNo).Take(6).ToList();
+        var listBlank = Model.Details.OrderBy(d => d.LineNo).Take(4).ToList();
         <div class="paper">
             <div style="height:7mm;"></div>
             <div class="header-wrap">
@@ -278,7 +278,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @for (int i = 0; i < 6; i++)
+                    @for (int i = 0; i < 4; i++)
                     {
                         var item = i < listBlank.Count ? listBlank[i] : null;
                         <tr>
