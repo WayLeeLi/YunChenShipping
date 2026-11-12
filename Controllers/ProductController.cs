@@ -282,7 +282,6 @@ namespace YunChenShipping.Controllers
                     p.TaxType
                 })
                 .OrderBy(p => p.PartNo)
-                .Take(50)
                 .ToListAsync();
 
             return Json(products);
