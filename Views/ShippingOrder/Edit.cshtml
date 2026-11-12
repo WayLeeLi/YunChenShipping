@@ -4,49 +4,6 @@
     var customers = ViewBag.Customers as List<YunChenShipping.Models.Customer>;
 }
 
-<style>
-    .product-picker {
-        position: relative;
-        min-width: 170px;
-    }
-
-    .product-options {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0;
-        z-index: 1050;
-        max-height: 260px;
-        overflow-y: auto;
-        background: #fff;
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
-    }
-
-    .product-picker.is-open .product-options {
-        display: block;
-    }
-
-    .product-option {
-        display: block;
-        width: 100%;
-        padding: 0.4rem 0.6rem;
-        border: 0;
-        background: #fff;
-        text-align: left;
-    }
-
-    .product-option:hover {
-        background: #f1f3f5;
-    }
-
-    .product-option small {
-        color: #6c757d;
-    }
-</style>
-
 <form asp-action="Edit" method="post" id="orderForm">
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="CreatedAt" />
@@ -137,11 +94,10 @@
                                 <tr>
                                     <td>@detail.LineNo</td>
                                     <td>
-                                        <div class="product-picker">
-                                            <input type="hidden" name="ProductIds" class="product-id" value="@detail.ProductId" />
-                                            <input type="search" class="form-control form-control-sm product-search" value="@(detail.Product?.Name ?? detail.ProductName ?? "")" placeholder="搜尋或選擇產品" autocomplete="off" onfocus="showProductOptions(this)" oninput="filterProductOptions(this)" onblur="hideProductOptions(this)" />
-                                            <div class="product-options"></div>
-                                        </div>
+                                        <input type="hidden" name="ProductIds" value="@detail.ProductId" />
+                                        <select class="form-select form-select-sm product-select" onchange="updateProductInfo(this)">
+                                            <option value="">請選擇產品</option>
+                                        </select>
                                     </td>
                                     <td>
                                         <input type="text" name="ProductNames" class="form-control form-control-sm" value="@(detail.ProductName ?? detail.Product?.Name ?? "")" />
@@ -176,11 +132,9 @@
                             <tr>
                                 <td>1</td>
                                 <td>
-                                    <div class="product-picker">
-                                        <input type="hidden" name="ProductIds" class="product-id" />
-                                        <input type="search" class="form-control form-control-sm product-search" placeholder="搜尋或選擇產品" autocomplete="off" onfocus="showProductOptions(this)" oninput="filterProductOptions(this)" onblur="hideProductOptions(this)" />
-                                        <div class="product-options"></div>
-                                    </div>
+                                    <select name="ProductIds" class="form-select form-select-sm product-select" onchange="updateProductInfo(this)">
+                                        <option value="">請選擇產品</option>
+                                    </select>
                                 </td>
                                 <td>
                                     <input type="text" name="ProductNames" class="form-control form-control-sm" />
@@ -279,11 +233,6 @@
             loadProducts();
             loadTaxCategories();
             loadDeliveryMethods();
-            $(window).on('scroll resize', function() {
-                $('.product-picker.is-open').each(function() {
-                    positionProductOptions(this);
-                });
-            });
         });
 
         function loadDeliveryMethods() {
@@ -361,105 +310,37 @@
         }
 
         function updateProductSelects() {
-            $('.product-picker').each(function() {
-                var picker = $(this);
-                var productId = picker.find('.product-id').val();
-                var product = products.find(function(item) { return item.id == productId; });
+            $('.product-select').each(function() {
+                var select = $(this);
+                var row = select.closest('tr');
+                var productIdInput = row.find('input[name="ProductIds"]');
+                var currentValue = select.val() || productIdInput.val();
 
-                if (product) {
-                    picker.find('.product-search').val(product.name);
-                    applyProductToRow(picker, product);
+                select.find('option:gt(0)').remove();
+                products.forEach(function(product) {
+                    select.append(`<option value="${product.id}"
+                        data-name="${product.name}"
+                        data-unit="${product.unit}"
+                        data-price="${product.standardPrice}"
+                        data-partno="${product.partNo}"
+                        data-taxtype="${product.taxType}">${product.name}</option>`);
+                });
+
+                if (currentValue) {
+                    select.val(currentValue);
+                    var selectedOption = select.find('option:selected');
+                    if (selectedOption.val()) {
+                        row.find('input[name="ProductNames"]').val(selectedOption.data('name'));
+                        row.find('input[name="PartNos"]').val(selectedOption.data('partno'));
+                        row.find('input[name="Units"]').val(selectedOption.data('unit'));
+                        var price = parseFloat(selectedOption.data('price')) || 0;
+                        row.find('.price-input').val(price.toFixed(2));
+                        var quantity = parseInt(row.find('.quantity-input').val()) || 0;
+                        var subtotal = quantity * price;
+                        row.find('.subtotal-display').text(price === 0 ? '' : subtotal.toFixed(2));
+                    }
                 }
-
-                renderProductOptions(this);
             });
-        }
-
-        function renderProductOptions(picker) {
-            var container = $(picker);
-            var input = container.find('.product-search');
-            var keyword = (input.val() || '').toString().trim().toLowerCase();
-            var options = container.find('.product-options').empty();
-
-            products.forEach(function(product) {
-                var name = (product.name || '').toString();
-                var partNo = (product.partNo || '').toString();
-                var matched = !keyword || name.toLowerCase().indexOf(keyword) >= 0 || partNo.toLowerCase().indexOf(keyword) >= 0;
-
-                if (matched) {
-                    options.append(`
-                        <button type="button" class="product-option" data-product-id="${product.id}" onclick="selectProduct(this)">
-                            ${name}<br><small>${partNo || '無 PART NO'}</small>
-                        </button>`);
-                }
-            });
-
-            if (options.children().length === 0) {
-                options.append('<div class="px-2 py-2 text-muted">找不到符合的產品</div>');
-            }
-        }
-
-        function showProductOptions(input) {
-            var picker = $(input).closest('.product-picker');
-            renderProductOptions(picker);
-            picker.addClass('is-open');
-            positionProductOptions(picker);
-        }
-
-        function filterProductOptions(input) {
-            var picker = $(input).closest('.product-picker');
-            picker.find('.product-id').val('');
-            renderProductOptions(picker);
-            picker.addClass('is-open');
-            positionProductOptions(picker);
-        }
-
-        function positionProductOptions(picker) {
-            var pickerElement = $(picker)[0];
-            var options = $(picker).find('.product-options');
-            if (!pickerElement || !options.length) return;
-
-            var rect = pickerElement.getBoundingClientRect();
-            options.css({
-                left: rect.left + 'px',
-                width: rect.width + 'px'
-            });
-
-            var optionsHeight = options.outerHeight();
-            var top = rect.bottom;
-            if (top + optionsHeight > window.innerHeight && rect.top > optionsHeight) {
-                top = rect.top - optionsHeight;
-            }
-            options.css('top', Math.max(4, top) + 'px');
-        }
-
-        function hideProductOptions(input) {
-            var picker = $(input).closest('.product-picker');
-            setTimeout(function() {
-                picker.removeClass('is-open');
-            }, 150);
-        }
-
-        function selectProduct(option) {
-            var picker = $(option).closest('.product-picker');
-            var productId = $(option).data('product-id');
-            var product = products.find(function(item) { return item.id == productId; });
-
-            if (!product) return;
-
-            picker.find('.product-id').val(product.id);
-            picker.find('.product-search').val(product.name);
-            applyProductToRow(picker, product);
-            picker.removeClass('is-open');
-            calculateRow(option);
-        }
-
-        function applyProductToRow(picker, product) {
-            var row = $(picker).closest('tr');
-            row.find('input[name="ProductNames"]').val(product.name);
-            row.find('input[name="PartNos"]').val(product.partNo || '');
-            row.find('input[name="Units"]').val(product.unit || '');
-            row.find('.price-input').val((parseFloat(product.standardPrice) || 0).toFixed(2));
         }
 
         function addDetail() {
@@ -468,11 +349,10 @@
                 <tr>
                     <td>${idx + 1}</td>
                     <td>
-                        <div class="product-picker">
-                            <input type="hidden" name="ProductIds" class="product-id" />
-                            <input type="search" class="form-control form-control-sm product-search" placeholder="搜尋或選擇產品" autocomplete="off" onfocus="showProductOptions(this)" oninput="filterProductOptions(this)" onblur="hideProductOptions(this)" />
-                            <div class="product-options"></div>
-                        </div>
+                        <input type="hidden" name="ProductIds" value="" />
+                        <select class="form-select form-select-sm product-select" onchange="updateProductInfo(this)">
+                            <option value="">請選擇產品</option>
+                        </select>
                     </td>
                     <td>
                         <input type="text" name="ProductNames" class="form-control form-control-sm" />
@@ -503,6 +383,19 @@
             `;
             $('#detailBody').append(html);
             updateProductSelects();
+        }
+        function updateProductInfo(select) {
+            var option = $(select).find('option:selected');
+            var row = $(select).closest('tr');
+            if (option.val()) {
+                row.find('input[name="ProductIds"]').val(option.val());
+                row.find('input[name="ProductNames"]').val(option.data('name'));
+                row.find('input[name="PartNos"]').val(option.data('partno'));
+                row.find('input[name="Units"]').val(option.data('unit'));
+                var price = parseFloat(option.data('price')) || 0;
+                row.find('.price-input').val(price.toFixed(2));
+                calculateRow(select);
+            }
         }
 
         function removeDetail(btn) {
